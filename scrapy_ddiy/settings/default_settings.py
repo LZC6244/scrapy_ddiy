@@ -21,6 +21,8 @@ LOG_ROTATING_CFG = {
     # midnight - roll over at midnight
     'when': 'midnight',
     'interval': 1,
+    # 最大保留最新日志文件数，0 表示不限制
+    'backupCount': 0,
 }
 # 启用日志时是否保留控制台的输出
 LOG_TO_CONSOLE = True
