@@ -4,6 +4,10 @@ import scrapy
 from time import sleep
 from datetime import datetime
 
+"""
+scrapy_ddiy 基本爬虫
+"""
+
 
 class DdiyBaseSpider(scrapy.Spider):
     name = 'ddiy_base'

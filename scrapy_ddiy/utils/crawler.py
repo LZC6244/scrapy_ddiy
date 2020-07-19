@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@Author: lzc
-@Time  : 2020/7/12
-@Github: https://github.com/LZC6244
-@Desc  : 根据 scrapy.utils.crawler 进行重写
+根据 scrapy.utils.crawler 进行重写
 """
 import six
 import signal

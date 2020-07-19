@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@Author: lzc
-@Time  : 2020/7/12
-@Github: https://github.com/LZC6244
-@Desc  : 根据 scrapy.utils.log 进行重写
+根据 scrapy.utils.log 进行重写
 """
 from scrapy.utils.log import *
 from twisted.python import log as twisted_log

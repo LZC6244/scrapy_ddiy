@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# @Author: lzc
-# @Time  : 2020/6/15
-# @Github: https://github.com/LZC6244
-# @Desc  : 启动、运行爬虫
+"""
+启动、运行爬虫
+"""
 import subprocess
 from scrapy_ddiy.utils.crawler import CustomCrawlerProcess
 from scrapy.utils.project import get_project_settings
