@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from runpy import run_path
 
 # Scrapy settings for scrapy_ddiy project
 #
@@ -52,11 +53,11 @@ COOKIES_ENABLED = False
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-    # 默认优先级：500
-    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy_ddiy.DownloadMiddlewares.CustomUserAgent.CustomUserAgent': 501,
-}
+# DOWNLOADER_MIDDLEWARES = {
+#     # 默认优先级：500
+#     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+#     'scrapy_ddiy.DownloadMiddlewares.CustomUserAgent.CustomUserAgent': 501,
+# }
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -91,11 +92,11 @@ DOWNLOADER_MIDDLEWARES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-# 日志配置
-LOG_LEVEL = 'INFO'
-LOG_ENCODING = 'utf-8'
-LOG_DIR = os.path.join(os.path.dirname(__file__), '../spider_logs')
-os.makedirs(LOG_DIR, exist_ok=True)
-
-# 是否启用随机UA
-RANDOM_UA = True
+# 将 default_settings 配置更新到当前配置文件
+default_settings = run_path(os.path.join(os.path.dirname(__file__), 'settings/default_settings.py'))
+current_settings = globals()
+for k, v in default_settings.items():
+    # 大写字母才属于 settings 变量配置
+    if not k.isupper():
+        continue
+    current_settings[k] = v

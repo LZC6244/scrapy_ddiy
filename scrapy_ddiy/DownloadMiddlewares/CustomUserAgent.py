@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-@Author: lzc
-@Time  : 2020/6/16
-@Github: https://github.com/LZC6244
-@Desc  : 爬虫 settings 未配置 User-Agent 时 ，为每个请求配置随机请求头
-         若已配置，则使用配置的 User-Agent
+爬虫 settings 未配置 User-Agent 时 ，为每个请求配置随机请求头
+若已配置，则使用配置的 User-Agent
 """
 import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
