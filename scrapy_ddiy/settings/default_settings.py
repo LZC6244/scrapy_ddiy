@@ -26,6 +26,8 @@ LOG_ROTATING_CFG = {
 }
 # 启用日志时是否保留控制台的输出
 LOG_TO_CONSOLE = True
+# 是否生成日志文件
+MAKE_LOG_FILE = True
 
 # 是否启用随机UA
 RANDOM_UA = True
