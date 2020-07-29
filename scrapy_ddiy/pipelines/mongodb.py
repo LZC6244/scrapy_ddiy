@@ -47,6 +47,7 @@ class MongodbPipeline(object):
         except BulkWriteError as e:
             # 插入重复数据（_id）时会报此错误
             pass
+        self.data_li.clear()
         logger.info(f'Bulk insert {len(data_li)} items successfully')
 
     def process_item(self, item, spider):
