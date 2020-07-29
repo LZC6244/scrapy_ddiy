@@ -3,7 +3,7 @@ import os
 from runpy import run_path
 
 # 将 default_settings 配置更新到当前配置文件
-default_settings = run_path(os.path.join(os.path.dirname(__file__), 'settings/default_settings.py'))
+default_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/default_settings.py'))
 current_settings = globals()
 for k, v in default_settings.items():
     if not k.isupper():
@@ -103,7 +103,7 @@ COOKIES_ENABLED = False
 MONGO_DATABASE = 'scrapy_ddiy_test'
 
 # 将 online_settings 配置更新到当前配置文件
-online_settings = run_path(os.path.join(os.path.dirname(__file__), 'settings/online_settings.py'))
+online_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/online_settings.py'))
 for k, v in default_settings.items():
     if not k.isupper():
         continue

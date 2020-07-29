@@ -8,7 +8,7 @@ from scrapy.item import Item, Field
 from scrapy_ddiy.utils.common import get_request_md5
 
 """
-scrapy_ddiy 基本爬虫
+scrapy_ddiy 基础爬虫
 """
 
 
@@ -76,6 +76,9 @@ class DdiyBaseSpider(scrapy.Spider):
             parsed_item.setdefault('_id', get_request_md5(response.request))
         parsed_item['crawl_time'] = datetime.now()
         return self._adjust_item(parsed_item)
+
+    def closed(self, reason):
+        self.redis_cli.close()
 
 
 def make_log_dir(log_file: str = None):
