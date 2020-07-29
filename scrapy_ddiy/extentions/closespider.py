@@ -5,7 +5,7 @@ from collections import defaultdict
 from scrapy import signals
 from scrapy.exceptions import NotConfigured
 from datetime import timedelta
-from scrapy_ddiy.Extentions.mail import EmailSender
+from scrapy_ddiy.extentions.mail import EmailSender
 
 
 class CloseSpider(object):

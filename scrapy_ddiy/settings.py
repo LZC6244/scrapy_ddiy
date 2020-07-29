@@ -2,6 +2,14 @@
 import os
 from runpy import run_path
 
+# 将 default_settings 配置更新到当前配置文件
+default_settings = run_path(os.path.join(os.path.dirname(__file__), 'settings/default_settings.py'))
+current_settings = globals()
+for k, v in default_settings.items():
+    if not k.isupper():
+        continue
+    current_settings[k] = v
+
 # Scrapy settings for scrapy_ddiy project
 #
 # For simplicity, this file contains only settings considered important or
@@ -56,7 +64,7 @@ COOKIES_ENABLED = False
 # DOWNLOADER_MIDDLEWARES = {
 #     # 默认优先级：500
 #     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-#     'scrapy_ddiy.DownloadMiddlewares.CustomUserAgent.CustomUserAgent': 501,
+#     'scrapy_ddiy.downloadmiddlewares.CustomUserAgent.CustomUserAgent': 501,
 # }
 
 # Enable or disable extensions
@@ -92,11 +100,11 @@ COOKIES_ENABLED = False
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-# 将 default_settings 配置更新到当前配置文件
-default_settings = run_path(os.path.join(os.path.dirname(__file__), 'settings/default_settings.py'))
-current_settings = globals()
+MONGO_DATABASE = 'scrapy_ddiy_test'
+
+# 将 online_settings 配置更新到当前配置文件
+online_settings = run_path(os.path.join(os.path.dirname(__file__), 'settings/online_settings.py'))
 for k, v in default_settings.items():
-    # 大写字母才属于 settings 变量配置
     if not k.isupper():
         continue
     current_settings[k] = v
