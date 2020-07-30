@@ -36,12 +36,12 @@ class DdiyBaseSpider(scrapy.Spider):
     @classmethod
     def update_settings(cls, settings):
         now = datetime.now().strftime('%Y-%m-%dT%H_%M_%S')
+        settings.setdict(cls.ddiy_settings or {}, priority='spider')
+        settings.setdict(cls.custom_settings or {}, priority='spider')
         if settings.getbool('MAKE_LOG_FILE'):
             log_file = settings.get('LOG_FILE') or f'spider_logs/{cls.name}/{cls.name}__{now}__{os.getpid()}.log'
             make_log_dir(log_file)
             settings.setdict({'LOG_FILE': log_file}, priority='spider')
-        settings.setdict(cls.ddiy_settings or {}, priority='spider')
-        settings.setdict(cls.custom_settings or {}, priority='spider')
 
     def custom_init(self, *args, **kwargs):
         pass
