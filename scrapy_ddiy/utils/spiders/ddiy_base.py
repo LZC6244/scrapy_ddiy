@@ -14,6 +14,8 @@ scrapy_ddiy 基础爬虫
 
 class DdiyBaseSpider(scrapy.Spider):
     name = 'ddiy_base'
+    # 爬虫描述，必填
+    description: str = None
 
     # 管道配置
     # 数据库表名
@@ -60,6 +62,7 @@ class DdiyBaseSpider(scrapy.Spider):
         spider = super().from_crawler(crawler, *args, **kwargs)
         spider.base_init(*args, **kwargs)
         spider.custom_init(*args, **kwargs)
+        assert spider.description, '请为爬虫填入描述，如："示例爬虫"，"某某-爬虫"等'
         return spider
 
     @staticmethod

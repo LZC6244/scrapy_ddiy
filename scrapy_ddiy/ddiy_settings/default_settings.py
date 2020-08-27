@@ -56,3 +56,5 @@ MONGO_PARAMS = {
 
 # 批量保存入库的 item 数
 BULK_INSERT = 5
+# 禁用 Telnet Console （scrapy 默认启用，Telnet 使用明文传输，不安全）
+TELNETCONSOLE_ENABLED = False

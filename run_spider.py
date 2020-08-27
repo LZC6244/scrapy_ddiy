@@ -18,5 +18,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         run_spider(sys.argv[1])
     else:
-        # run_spider('demo_spider')
-        run_spider('alapi_dujitang')
+        run_spider('demo_spider')

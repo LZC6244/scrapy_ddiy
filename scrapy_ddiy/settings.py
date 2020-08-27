@@ -75,9 +75,9 @@ COOKIES_ENABLED = False
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    'scrapy_ddiy.pipelines.ScrapyDdiyPipeline': 300,
-# }
+ITEM_PIPELINES = {
+   'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
