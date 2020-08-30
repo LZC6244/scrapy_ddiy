@@ -1,0 +1,9 @@
+w3lib
+Scrapy
+pymongo
+itemadapter
+redis
+scrapy_redis
+six
+Twisted
+DingTalkBot
