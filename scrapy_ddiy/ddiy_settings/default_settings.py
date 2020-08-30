@@ -58,3 +58,5 @@ MONGO_PARAMS = {
 BULK_INSERT = 5
 # 禁用 Telnet Console （scrapy 默认启用，Telnet 使用明文传输，不安全）
 TELNETCONSOLE_ENABLED = False
+# Redis 爬虫获取不到种子达到指定次数后关闭爬虫
+IDLE_TIMES_MAX = 3

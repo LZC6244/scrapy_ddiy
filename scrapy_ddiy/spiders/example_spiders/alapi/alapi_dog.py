@@ -3,13 +3,12 @@ import json
 from scrapy import FormRequest
 from scrapy_ddiy.utils.common import get_str_md5
 from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
-
-"""
-ALAPI 舔狗日记
-"""
+from scrapy_ddiy.utils.spiders.ddiy_redis import DdiyRedisSpider
 
 
-class AlapiDogSpider(DdiyBaseSpider):
+# class AlapiDogSpider(DdiyBaseSpider):
+class AlapiDogSpider(DdiyRedisSpider):
+    description = 'ALAPI-舔狗日记'
     name = 'alapi_dog'
     start_url = 'https://v1.alapi.cn/api/dog'
     custom_settings = {

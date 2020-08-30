@@ -25,8 +25,8 @@ class DdiyBaseSpider(scrapy.Spider):
 
     start_urls = ['https://www.baidu.com/']
 
-    # custom_settings 优先级高于 ddiy_settings
-    ddiy_settings = {
+    # custom_settings 优先级高于 _ddiy_settings
+    _ddiy_settings = {
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,
     }
@@ -38,7 +38,7 @@ class DdiyBaseSpider(scrapy.Spider):
     @classmethod
     def update_settings(cls, settings):
         now = datetime.now().strftime('%Y-%m-%dT%H_%M_%S')
-        settings.setdict(cls.ddiy_settings or {}, priority='spider')
+        settings.setdict(cls._ddiy_settings or {}, priority='spider')
         settings.setdict(cls.custom_settings or {}, priority='spider')
         if settings.getbool('MAKE_LOG_FILE'):
             log_file = settings.get('LOG_FILE') or f'spider_logs/{cls.name}/{cls.name}__{now}__{os.getpid()}.log'

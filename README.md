@@ -16,7 +16,7 @@ scrapy 项目练习、自定义框架组件
 - [ ] 预警功能，暂定钉钉和邮件
 - [ ] **spidermiddlewares** 处理解析异常，异常保存到 **MongoDB** ...
 - [ ] **downloanmiddlewares** 处理请求、响应异常
-- [ ] 加入 **Redis** 爬虫基本爬虫（解决空跑）
+- [x] 加入 **Redis** 爬虫基本爬虫
 
 ## TODO
 - [ ] 使用 **ORM** 添加处理 sql 数据库的管道
