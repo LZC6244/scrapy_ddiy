@@ -48,9 +48,11 @@ def custom_install_scrapy_root_handler(settings, spider_name):
     global _scrapy_root_handler
 
     if (_scrapy_root_handler is not None
-            and _scrapy_root_handler in logging.root.handlers
-            and not settings.getbool('LOG_TO_CONSOLE')):
-        logging.root.removeHandler(_scrapy_root_handler)
+            and _scrapy_root_handler in logging.root.handlers):
+        if not settings.getbool('LOG_TO_CONSOLE'):
+            logging.root.removeHandler(_scrapy_root_handler)
+        elif not settings.get('LOG_FILE'):
+            logging.root.removeHandler(_scrapy_root_handler)
     logging.root.setLevel(logging.NOTSET)
     _scrapy_root_handler = custom_get_handler(settings)
     logging.root.addHandler(_scrapy_root_handler)
