@@ -3,8 +3,8 @@ import os
 import redis
 import scrapy
 import pymongo
-from datetime import datetime
 from scrapy.item import Item, Field
+from datetime import datetime, timedelta
 from scrapy_ddiy.utils.common import get_request_md5
 
 """
@@ -41,7 +41,7 @@ class DdiyBaseSpider(scrapy.Spider):
         settings.setdict(cls._ddiy_settings or {}, priority='spider')
         settings.setdict(cls.custom_settings or {}, priority='spider')
         if settings.getbool('MAKE_LOG_FILE'):
-            log_file = settings.get('LOG_FILE') or f'spider_logs/{cls.name}/{cls.name}__{now}__{os.getpid()}.log'
+            log_file = settings.get('LOG_FILE', f'spider_logs/{cls.name}/{cls.name}__{now}__{os.getpid()}.log')
             make_log_dir(log_file)
             settings.setdict({'LOG_FILE': log_file}, priority='spider')
 

@@ -6,7 +6,8 @@ default_settings for scrapy_ddiy
 DOWNLOADER_MIDDLEWARES = {
     # UserAgentMiddleware 默认优先级：500
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy_ddiy.downloadermiddlewares.CustomUserAgent.CustomUserAgent': 501,
+    'scrapy_ddiy.downloadermiddlewares.custom_user_agent.CustomUserAgent': 501,
+    'scrapy_ddiy.downloadermiddlewares.log_crawl.LogCrawl': 510,
 }
 
 # 日志配置
@@ -60,3 +61,13 @@ BULK_INSERT = 5
 TELNETCONSOLE_ENABLED = False
 # Redis 爬虫获取不到种子达到指定次数后关闭爬虫
 IDLE_TIMES_MAX = 3
+# 记录开始爬取请求
+LOG_CRAWLING = True
+# 记录开始解析响应
+LOG_PARSING = True
+
+# 钉钉机器人联系人 hash 名，保存用户名（如maida）和手机号（用于@某人）如：{'name':'phone_number',...}
+# 此为进阶功能，可不配置
+DING_TALK_BOT_CONTACTS = 'DingTalkBot:contacts'
+# 钉钉机器人保存消息（预警/通知/自定义）的 list 名，如：[]
+DING_TALK_BOT_MESSAGES = 'DingTalkBot:messages'

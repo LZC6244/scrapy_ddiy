@@ -76,7 +76,7 @@ COOKIES_ENABLED = False
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
+    'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -102,9 +102,10 @@ ITEM_PIPELINES = {
 
 MONGO_DATABASE = 'scrapy_ddiy_test'
 
-# 将 online_settings 配置更新到当前配置文件
-online_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/online_settings.py'))
-for k, v in default_settings.items():
-    if not k.isupper():
-        continue
-    current_settings[k] = v
+if os.environ.get('ENV_FLAG') == 'online':
+    # 将 online_settings 配置更新到当前配置文件
+    online_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/online_settings.py'))
+    for k, v in online_settings.items():
+        if not k.isupper():
+            continue
+        current_settings[k] = v
