@@ -43,7 +43,7 @@ class LogCrawl(object):
     def process_response(self, request, response, spider):
         if response.status != 200:
             spider.logger.warning(
-                f'Got not 200 response ==> [{request.method}] {request.url}  {request.body[:50]}')
+                f'Got not 200 response ==> [{response.status}-{request.method}] {request.url}  {request.body[:50]}')
         if self.log_parsing:
             spider.logger.info(f'Parsing ==> [{request.method}] {request.url}  {request.body[:50]}')
         return response
