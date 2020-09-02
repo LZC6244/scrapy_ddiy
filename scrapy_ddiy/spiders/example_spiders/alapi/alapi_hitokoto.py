@@ -18,7 +18,7 @@ class AlapiHitokotoSpider(AlapiDogSpider):
 
     def start_requests(self):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        for i in range(10):
+        for i in range(8):
             for t in self.type_map.keys():
                 form_data = {'format': 'json', 'type': t}
                 yield FormRequest(url=self.start_url, callback=self.parse, dont_filter=True,

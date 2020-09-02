@@ -28,7 +28,7 @@ NEWSPIDER_MODULE = 'scrapy_ddiy.spiders'
 # USER_AGENT = 'scrapy_ddiy (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-# ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -102,7 +102,7 @@ ITEM_PIPELINES = {
 
 MONGO_DATABASE = 'scrapy_ddiy_test'
 
-if os.environ.get('ENV_FLAG') == 'online':
+if os.environ.get('ENV_FLAG_DDIY') == 'online':
     # 将 online_settings 配置更新到当前配置文件
     online_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/online_settings.py'))
     for k, v in online_settings.items():
