@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
+from inspect import isgenerator
 from scrapy_redis import defaults
 from scrapy_redis.spiders import RedisSpider
 from scrapy.exceptions import DontCloseSpider
@@ -46,6 +47,9 @@ class DdiyRedisSpider(DdiyBaseSpider, RedisSpider):
                 break
             try:
                 req = self.make_request_from_data(data)
+                # When 'make_request_from_data' method use like 'yield Request'
+                if isgenerator(req):
+                    req = next(req)
             except Exception as e:
                 self.logger.exception(f'Parsed seed error\nseed raw: {data}')
                 self.crawler.stats.inc_value('parsed_seed_error')
