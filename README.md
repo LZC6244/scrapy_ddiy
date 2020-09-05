@@ -8,7 +8,8 @@ scrapy 项目练习、自定义框架组件
 ## 运行爬虫
 > python run_spider.py spider_name
   
-or
+**or**
+
 > python run_spider.py spider_name -a xx=xx -a xx=xx
 
 ## 功能概览
