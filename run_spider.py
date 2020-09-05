@@ -2,6 +2,7 @@
 """
 启动、运行爬虫
 """
+import os
 import sys
 from scrapy.utils.conf import arglist_to_dict
 from scrapy.exceptions import UsageError
@@ -9,7 +10,8 @@ from scrapy_ddiy.utils.crawler import CustomCrawlerProcess
 from scrapy.utils.project import get_project_settings
 
 
-def run_spider(spider_name, install_root_handler: bool = True):
+def run_spider(spider_name, install_root_handler: bool = True, **kwargs):
+    os.chdir(os.path.normpath(os.path.dirname(__file__)))
     settings = get_project_settings()
     process = CustomCrawlerProcess(settings, install_root_handler)
     process.crawl(spider_name, **kwargs)
