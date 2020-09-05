@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 import redis
-import scrapy
 import pymongo
+from scrapy import Spider
+from datetime import datetime
 from scrapy.item import Item, Field
-from datetime import datetime, timedelta
 from scrapy_ddiy.utils.common import get_request_md5
 
 """
@@ -12,7 +12,7 @@ scrapy_ddiy 基础爬虫
 """
 
 
-class DdiyBaseSpider(scrapy.Spider):
+class DdiyBaseSpider(Spider):
     name = 'ddiy_base'
     # 爬虫描述，必填
     description: str = None
