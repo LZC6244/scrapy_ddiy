@@ -5,6 +5,12 @@ scrapy 项目练习、自定义框架组件
 - Redis server
 - MongoDB server
 
+## 运行爬虫
+> python run_spider.py spider_name
+  
+or
+> python run_spider.py spider_name -a xx=xx -a xx=xx
+
 ## 功能概览
 - [x] 当请求无 User-Agent 时，为其设置随机 User-Agent
 - [x] 日志文件轮询机制
