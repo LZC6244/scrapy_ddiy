@@ -1,5 +1,7 @@
 # scrapy_ddiy
-scrapy 项目练习、自定义框架组件
+scrapy 项目练习、自定义框架组件  
+
+Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 
 ## 环境需求
 - Redis server
