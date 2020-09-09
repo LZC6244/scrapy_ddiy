@@ -8,8 +8,6 @@ REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 REDIS_PARAMS = {
     'password': os.environ.get('REDIS_PASSWORD', None),
     'db': 11,
-    # Redis连接 是否自动解码
-    'decode_responses': True,
 }
 
 # MongoDB 配置

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
+import json
 import redis
 import pymongo
 from scrapy import Spider
 from datetime import datetime
 from scrapy.item import Item, Field
-from scrapy_ddiy.utils.common import get_request_md5
+from scrapy_ddiy.utils.common import get_request_md5, get_local_ip
 
 """
 scrapy_ddiy 基础爬虫
@@ -23,17 +24,14 @@ class DdiyBaseSpider(Spider):
     # 数据库表名 for MongoDB
     table_name_mongo = None
 
-    start_urls = ['https://www.baidu.com/']
-
     # custom_settings 优先级高于 _ddiy_settings
-    _ddiy_settings = {
-        'CONCURRENT_REQUESTS': 1,
-        'DOWNLOAD_DELAY': 1,
-    }
-    # 预设给爬虫使用的 Redis 连接（如 scrapy_redis 、 记录某些特定数据）
+    _ddiy_settings = {}
+    # 预设给爬虫使用的 Redis 连接（如 scrapy_redis 、 记录告警信息）
     redis_cli: redis.Redis
     # 预设给爬虫使用的 MongoDB 连接（如记录爬虫异常信息）
     mongo_cli: pymongo.MongoClient
+    # 本机内网 IP
+    _local_ip: str
 
     @classmethod
     def update_settings(cls, settings):
@@ -56,6 +54,7 @@ class DdiyBaseSpider(Spider):
                                          **self.settings.getdict('REDIS_PARAMS'))
         self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI'), **self.settings.getdict('MONGO_PARAMS'))
         self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI'), **self.settings.getdict('MONGO_PARAMS'))
+        self._local_ip = get_local_ip()
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -79,6 +78,15 @@ class DdiyBaseSpider(Spider):
             parsed_item.setdefault('_id', get_request_md5(response.request))
         parsed_item['crawl_time'] = datetime.now()
         return self._adjust_item(parsed_item)
+
+    def send_dingding_msg(self, warn_msg: str):
+        time_format = '%Y-%m-%d %H:%M:%S'
+        start_time = self.crawler.stats.get_stats()['start_time'].strftime(time_format)
+        warn_time = datetime.now().strftime(time_format)
+        msg_dict = {'start_time': start_time, 'warn_time': warn_time,
+                    'spider_name': f'[{self.name}] {self.description}', 'warn_msg': warn_msg,
+                    'server_ip': self._local_ip, 'pid': os.getpid()}
+        self.redis_cli.rpush(self.settings.get('WARN_MESSAGES_LIST'), json.dumps(msg_dict, ensure_ascii=False))
 
     def closed(self, reason):
         self.redis_cli.close()

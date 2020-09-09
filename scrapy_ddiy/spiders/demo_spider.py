@@ -9,7 +9,12 @@ scrapy_ddiy 示例爬虫
 
 class DemoSpider(DdiyBaseSpider):
     name = 'demo_spider'
-    description = 'scrapy_ddiy - 示例爬虫'
+    description = 'scrapy_ddiy - Redis示例爬虫'
+    start_urls = ['https://www.baidu.com/']
+    custom_settings = {
+        'CONCURRENT_REQUESTS': 1,
+        'DOWNLOAD_DELAY': 1,
+    }
 
     def parse(self, response):
         self.logger.info("I'm a demo spider.")

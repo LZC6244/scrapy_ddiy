@@ -37,11 +37,14 @@ RANDOM_UA = True
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 # redis.Redis 所需参数
+# decode_responses 参数用于配置Redis连接是否自动解码，不可设置为 True
+# scrapy_redis 使用的是非解码，故不能使用解码（默认为非解码，此处只是显示写出）
 REDIS_PARAMS = {
     'password': None,
     'db': 10,
-    # Redis连接 是否自动解码
-    'decode_responses': True,
+    # decode_responses 参数用于配置 Redis 连接是否自动解码，不可设置为 True
+    # scrapy_redis 使用的是非解码，故不能使用解码（默认为非解码）
+    # 'decode_responses': False,
 }
 
 # MongoDB 配置
@@ -69,5 +72,6 @@ LOG_PARSING = True
 # 钉钉机器人联系人 hash 名，保存用户名（如maida）和手机号（用于@某人）如：{'name':'phone_number',...}
 # 此为进阶功能，可不配置
 DING_TALK_BOT_CONTACTS = 'DingTalkBot:contacts'
-# 钉钉机器人保存消息（预警/通知/自定义）的 list 名，如：[]
-DING_TALK_BOT_MESSAGES = 'DingTalkBot:messages'
+# scrapy_ddiy 告警消息（预警/通知/自定义）的 list 名，如：[]
+WARN_MESSAGES_LIST = 'scrapy_ddiy:warn_messages'
+WARN_MESSAGES_LIST_FAILED = 'scrapy_ddiy:warn_messages_failed'
