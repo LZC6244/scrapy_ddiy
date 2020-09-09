@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
+from scrapy import Request
 from inspect import isgenerator
 from scrapy_redis import defaults
 from scrapy_redis.spiders import RedisSpider
@@ -31,7 +32,7 @@ class DdiyRedisSpider(DdiyBaseSpider, RedisSpider):
         """重写 RedisSpider spider_idle 方法，解决空跑（无限等待种子）"""
         self.schedule_next_requests()
         if self._idle_times >= self._idle_times_max:
-            self.closed(reason=f'Close spider after not got seed from redis queue{self._idle_times_max} times.')
+            self.closed(reason=f'Close spider after not got seed from redis queue {self._idle_times_max} times.')
         else:
             raise DontCloseSpider
 
@@ -48,14 +49,18 @@ class DdiyRedisSpider(DdiyBaseSpider, RedisSpider):
             try:
                 req = self.make_request_from_data(data)
                 # When 'make_request_from_data' method use like 'yield Request'
-                if isgenerator(req):
-                    req = next(req)
+                if not isgenerator(req):
+                    req = [req]
             except Exception as e:
                 self.logger.exception(f'Parsed seed error\nseed raw: {data}')
                 self.crawler.stats.inc_value('parsed_seed_error')
                 continue
             if req:
-                yield req
+                for r in req:
+                    if isinstance(r, Request):
+                        yield r
+                    else:
+                        self.logger.warning(f'Ignore non-Request ==> {type(r)}')
                 found += 1
             else:
                 self.logger.debug("Request not made from data: %r", data)
