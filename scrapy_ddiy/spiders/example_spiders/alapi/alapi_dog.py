@@ -19,6 +19,7 @@ class AlapiDogSpider(DdiyBaseSpider):
         'CONCURRENT_REQUESTS': 1,
         'BULK_INSERT': 10,
         'DOWNLOAD_DELAY': 2,
+        'HTTPERROR_ALLOWED_CODES': [429],
     }
 
     def start_requests(self):
@@ -29,7 +30,17 @@ class AlapiDogSpider(DdiyBaseSpider):
             yield FormRequest(url=self.start_url, callback=self.parse, dont_filter=True,
                               headers=headers, formdata=form_data)
 
+    def check_status(self, response):
+        if response.status == 429:
+            msg = '已达到访问频率限制，停止爬虫...'
+            self.send_dingding_msg(msg)
+            self.crawler.engine.close_spider(self, msg)
+            return False
+        return True
+
     def parse(self, response):
+        if not self.check_status(response):
+            return
         data = json.loads(response.text)
         content = data.get('data').get('content')
         item = {'_id': get_str_md5(content), 'content': content, 'sent_time': None}
@@ -40,7 +51,6 @@ class AlapiDogSpider(DdiyBaseSpider):
         spider_stats = self.crawler.stats.get_stats()
         item_scraped_count = spider_stats.get('item_scraped_count', 0)
         if item_scraped_count <= 0 and reason == 'finished':
-            content = f'[{self.name} {self.description}] 爬取数据为 {item_scraped_count}，请检查...'
-            msg = {'msg_type': 'text', 'content': content}
-            self.redis_cli.rpush(self.settings.get('DING_TALK_BOT_MESSAGES'), json.dumps(msg, ensure_ascii=False))
+            warn_msg = f'共爬取 {item_scraped_count} 条数据，请检查...'
+            self.send_dingding_msg(warn_msg=warn_msg)
         super().closed(reason)
