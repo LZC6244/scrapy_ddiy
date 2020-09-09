@@ -6,6 +6,7 @@
 """
 import scrapy
 from scrapy import signals
+from types import MethodType
 from twisted.python.failure import Failure
 from datetime import timedelta
 
@@ -26,16 +27,20 @@ class LogCrawl(object):
         # This method is used by Scrapy to create your spiders.
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
+        crawler.signals.connect(s.close_spider, signal=signals.spider_closed)
         return s
 
     def spider_opened(self, spider):
         spider.crawler.stats.get_stats()['start_time'] += timedelta(hours=8)
         self.log_crawling = spider.settings.getbool('LOG_CRAWLING')
         self.log_parsing = spider.settings.getbool('LOG_PARSING')
+        spider.ddiy_default_err_back = MethodType(default_err_back, spider)
 
     def process_request(self, request, spider):
         if not request.errback:
-            setattr(request, 'errback', lambda failure: default_err_back(spider, failure))
+            # 此处必须传方法，不能传函数（譬如利用匿名函数使用 default_err_back 函数）
+            # scrapy 爬虫可传函数， scrapy_redis 爬虫仅能传方法
+            setattr(request, 'errback', spider.ddiy_default_err_back)
         if self.log_crawling:
             spider.logger.info(f'Crawling ==> [{request.method}] {request.url}  {request.body[:50]}')
         return None
@@ -43,10 +48,15 @@ class LogCrawl(object):
     def process_response(self, request, response, spider):
         if response.status != 200:
             spider.logger.warning(
-                f'Got not 200 response ==> [{response.status}-{request.method}] {request.url}  {request.body[:50]}')
+                f'Got non-200 response ==> [{response.status}-{request.method}] {request.url}  {request.body[:50]}')
         if self.log_parsing:
             spider.logger.info(f'Parsing ==> [{request.method}] {request.url}  {request.body[:50]}')
         return response
 
-    def close_spider(self, spider):
-        spider.crawler.stats.get_stats()['finish_time'] += timedelta(hours=8)
+    @staticmethod
+    def close_spider(spider):
+        spider_stats = spider.crawler.stats.get_stats()
+        spider_stats['finish_time'] += timedelta(hours=8)
+        start_time = spider_stats['start_time']
+        finish_time = spider_stats['finish_time']
+        spider_stats['elapsed_time_readable'] = str(finish_time - start_time)[:-1]
