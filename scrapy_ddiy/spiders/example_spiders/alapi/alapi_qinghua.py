@@ -19,6 +19,8 @@ class AlapiQinghuaSpider(AlapiDogSpider):
                               headers=headers, formdata=form_data)
 
     def parse(self, response):
+        if not self.check_status(response):
+            return
         data = json.loads(response.text)
         content = data.get('data').get('content')
         item = {'_id': get_str_md5(content), 'content': content, 'sent_time': None}

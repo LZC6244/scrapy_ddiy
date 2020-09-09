@@ -25,6 +25,8 @@ class AlapiHitokotoSpider(AlapiDogSpider):
                                   headers=headers, formdata=form_data)
 
     def parse(self, response):
+        if not self.check_status(response):
+            return
         data = json.loads(response.text).get('data')
         content = data.get('hitokoto')
         from_s = data.get('from')
