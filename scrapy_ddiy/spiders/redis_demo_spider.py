@@ -25,3 +25,6 @@ class DemoSpider(DdiyRedisSpider):
 
     def parse(self, response):
         self.logger.info(f"{response.url} ==> I'm a redis demo spider.")
+        item = {'k1': 'v1', 'k2': 'v2'}
+        item = self.process_parsed_item(response, item)
+        yield item

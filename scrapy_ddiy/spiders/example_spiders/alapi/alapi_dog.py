@@ -52,5 +52,5 @@ class AlapiDogSpider(DdiyBaseSpider):
         item_scraped_count = spider_stats.get('item_scraped_count', 0)
         if item_scraped_count <= 0 and reason == 'finished':
             warn_msg = f'共爬取 {item_scraped_count} 条数据，请检查...'
-            self.send_dingding_msg(warn_msg=warn_msg)
+            self.send_ding_bot_msg(warn_msg=warn_msg)
         super().closed(reason)
