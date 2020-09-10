@@ -46,6 +46,8 @@ REDIS_PARAMS = {
     # scrapy_redis 使用的是非解码，故不能使用解码（默认为非解码）
     # 'decode_responses': False,
 }
+# Whether cleanup redis queues, allows to pause/resume crawls.
+SCHEDULER_PERSIST = False
 
 # MongoDB 配置
 MONGO_URI = '127.0.0.1:27017'
@@ -63,7 +65,7 @@ BULK_INSERT = 5
 # 禁用 Telnet Console （scrapy 默认启用，Telnet 使用明文传输，不安全）
 TELNETCONSOLE_ENABLED = False
 # Redis 爬虫获取不到种子达到指定次数后关闭爬虫
-IDLE_TIMES_MAX = 3
+IDLE_TIMES_MAX = 5
 # 记录开始爬取请求
 LOG_CRAWLING = True
 # 记录开始解析响应
