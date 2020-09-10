@@ -3,12 +3,9 @@
 MongoDB Pipeline
 """
 
-import logging
 import pymongo
 from itemadapter import ItemAdapter
 from pymongo.errors import BulkWriteError
-
-logger = logging.getLogger(__name__)
 
 
 class MongodbPipeline(object):
@@ -31,9 +28,7 @@ class MongodbPipeline(object):
         )
 
     def open_spider(self, spider):
-        mongo_coll = getattr(spider, 'table_name_mongo', None) or \
-                     getattr(spider, 'table_name_ddiy', None) or \
-                     spider.name
+        mongo_coll = getattr(spider, 'table_name_ddiy', None) or spider.name
         self.mongo_coll = self.mongo_cli[self.mongo_db][mongo_coll]
 
     def close_spider(self, spider):
@@ -48,7 +43,7 @@ class MongodbPipeline(object):
             # 插入重复数据（_id）时会报此错误
             pass
 
-        logger.info(f'Bulk insert {len(data_li)} items successfully')
+        spider.logger.info(f'Bulk insert {len(data_li)} items successfully')
         self.data_li.clear()
 
     def process_item(self, item, spider):
