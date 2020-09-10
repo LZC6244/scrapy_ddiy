@@ -21,8 +21,6 @@ class DdiyBaseSpider(Spider):
     # 管道配置
     # 数据库表名
     table_name_ddiy = None
-    # 数据库表名 for MongoDB
-    table_name_mongo = None
 
     # custom_settings 优先级高于 _ddiy_settings
     _ddiy_settings = {}
@@ -55,13 +53,21 @@ class DdiyBaseSpider(Spider):
         self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI'), **self.settings.getdict('MONGO_PARAMS'))
         self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI'), **self.settings.getdict('MONGO_PARAMS'))
         self._local_ip = get_local_ip()
+        if os.environ.get('ENV_FLAG_DDIY') != 'online':
+            # 防止开发爬虫时污染线上数据
+            self.logger.info('Non-online environment!Set the database table name to "scrapy_ddiy_test"')
+            self.table_name_ddiy = 'scrapy_ddiy_test'
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
         spider.base_init(*args, **kwargs)
         spider.custom_init(*args, **kwargs)
-        assert spider.description, '请为爬虫填入描述，如："示例爬虫"，"某某-爬虫"等'
+        assert spider.mongo_cli.server_info(), 'MongoDB failed to establish a connection, please check the settings'
+        assert spider.redis_cli.info(), 'Redis failed to establish a connection, please check the settings'
+        assert spider.description, 'Please fill in a description for the Spider, such as: "Sample Spider", ' \
+                                   '"XX-Spider" ... '
+
         return spider
 
     @staticmethod
@@ -79,16 +85,18 @@ class DdiyBaseSpider(Spider):
         parsed_item['crawl_time'] = datetime.now()
         return self._adjust_item(parsed_item)
 
-    def send_dingding_msg(self, warn_msg: str):
+    def send_ding_bot_msg(self, warn_msg: str):
         time_format = '%Y-%m-%d %H:%M:%S'
         start_time = self.crawler.stats.get_stats()['start_time'].strftime(time_format)
         warn_time = datetime.now().strftime(time_format)
         msg_dict = {'start_time': start_time, 'warn_time': warn_time,
                     'spider_name': f'[{self.name}] {self.description}', 'warn_msg': warn_msg,
                     'server_ip': self._local_ip, 'pid': os.getpid()}
+        self.crawler.stats.inc_value('warn_msg_count/ding_bot')
         self.redis_cli.rpush(self.settings.get('WARN_MESSAGES_LIST'), json.dumps(msg_dict, ensure_ascii=False))
 
     def closed(self, reason):
+        self.mongo_cli.close()
         self.redis_cli.close()
 
 
