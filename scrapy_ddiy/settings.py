@@ -1,14 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-from runpy import run_path
-
-# 将 default_settings 配置更新到当前配置文件
-default_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/default_settings.py'))
-current_settings = globals()
-for k, v in default_settings.items():
-    if not k.isupper():
-        continue
-    current_settings[k] = v
 
 # Scrapy settings for scrapy_ddiy project
 #
@@ -64,7 +54,6 @@ COOKIES_ENABLED = False
 # DOWNLOADER_MIDDLEWARES = {
 #     # 默认优先级：500
 #     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-#     'scrapy_ddiy.downloadmiddlewares.CustomUserAgent.CustomUserAgent': 501,
 # }
 
 # Enable or disable extensions
@@ -100,12 +89,5 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+LOG_LEVEL = 'INFO'
 MONGO_DATABASE = 'scrapy_ddiy_test'
-
-if os.environ.get('ENV_FLAG_DDIY') == 'online':
-    # 将 online_settings 配置更新到当前配置文件
-    online_settings = run_path(os.path.join(os.path.dirname(__file__), 'ddiy_settings/online_settings.py'))
-    for k, v in online_settings.items():
-        if not k.isupper():
-            continue
-        current_settings[k] = v

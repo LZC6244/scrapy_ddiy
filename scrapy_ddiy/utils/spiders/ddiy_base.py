@@ -26,10 +26,12 @@ class DdiyBaseSpider(Spider):
     _ddiy_settings = {}
     # 预设给爬虫使用的 Redis 连接（如 scrapy_redis 、 记录告警信息）
     redis_cli: redis.Redis
-    # 预设给爬虫使用的 MongoDB 连接（如记录爬虫异常信息）
+    # 预设给爬虫使用的 MongoDB 连接，用于记录爬虫异常信息
     mongo_cli: pymongo.MongoClient
     # 本机内网 IP
     _local_ip: str
+    # 是否为线上环境
+    is_online: bool
 
     @classmethod
     def update_settings(cls, settings):
@@ -50,10 +52,13 @@ class DdiyBaseSpider(Spider):
         else:
             self.redis_cli = redis.Redis(host=self.settings.get('REDIS_HOST'), port=self.settings.get('REDIS_PORT'),
                                          **self.settings.getdict('REDIS_PARAMS'))
-        self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI'), **self.settings.getdict('MONGO_PARAMS'))
-        self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI'), **self.settings.getdict('MONGO_PARAMS'))
         self._local_ip = get_local_ip()
-        if os.environ.get('ENV_FLAG_DDIY') != 'online':
+        self.is_online = os.environ.get('ENV_FLAG_DDIY') == 'online'
+        if self.is_online:
+            # 仅在正式环境启用异常记录，应尽可能在开发爬虫时处理完异常情况
+            self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI_EXCEPTION'),
+                                                 **self.settings.getdict('MONGO_PARAMS_EXCEPTION'))
+        else:
             # 防止开发爬虫时污染线上数据
             self.logger.info('Non-online environment!Set the database table name to "scrapy_ddiy_test"')
             self.table_name_ddiy = 'scrapy_ddiy_test'
@@ -63,7 +68,9 @@ class DdiyBaseSpider(Spider):
         spider = super().from_crawler(crawler, *args, **kwargs)
         spider.base_init(*args, **kwargs)
         spider.custom_init(*args, **kwargs)
-        assert spider.mongo_cli.server_info(), 'MongoDB failed to establish a connection, please check the settings'
+        if spider.is_online:
+            assert spider.mongo_cli.server_info(), 'MongoDB for logging exceptions  failed to establish a connection, ' \
+                                                   'please check the settings '
         assert spider.redis_cli.info(), 'Redis failed to establish a connection, please check the settings'
         assert spider.description, 'Please fill in a description for the Spider, such as: "Sample Spider", ' \
                                    '"XX-Spider" ... '
@@ -79,6 +86,7 @@ class DdiyBaseSpider(Spider):
         return item
 
     def process_parsed_item(self, response, parsed_item: dict, set_id=True):
+        """若同一个请求中解析出多条数据，请为每条数据手动设置 _id"""
         if set_id:
             # 默认不覆盖 parsed_item 中带过来的 _id
             parsed_item.setdefault('_id', get_request_md5(response.request))
@@ -96,7 +104,8 @@ class DdiyBaseSpider(Spider):
         self.redis_cli.rpush(self.settings.get('WARN_MESSAGES_LIST'), json.dumps(msg_dict, ensure_ascii=False))
 
     def closed(self, reason):
-        self.mongo_cli.close()
+        if self.is_online:
+            self.mongo_cli.close()
         self.redis_cli.close()
 
 

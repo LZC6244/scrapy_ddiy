@@ -33,7 +33,7 @@ class AlapiDogSpider(DdiyBaseSpider):
     def check_status(self, response):
         if response.status == 429:
             msg = '已达到访问频率限制，停止爬虫...'
-            self.send_dingding_msg(msg)
+            self.send_ding_bot_msg(msg)
             self.crawler.engine.close_spider(self, msg)
             return False
         return True
