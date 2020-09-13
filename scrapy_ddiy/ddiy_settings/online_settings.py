@@ -4,6 +4,8 @@ online_settings for scrapy_ddiy
 """
 import os
 
+LOG_LEVEL = 'INFO'
+
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 REDIS_PARAMS = {
     'password': os.environ.get('REDIS_PASSWORD', None),
@@ -19,4 +21,12 @@ MONGO_PARAMS = {
     'username': os.environ.get('MONGO_USERNAME', None),
     'password': os.environ.get('MONGO_PASSWORD', None),
     'authSource': os.environ.get('MONGO_AUTH', 'admin'),
+}
+MONGO_URI_EXCEPTION = os.environ.get('MONGO_URI_EXCEPTION', '127.0.0.1:27017')
+MONGO_DATABASE_EXCEPTION = 'scrapy_ddiy_exception'
+MONGO_COLLECTION_EXCEPTION = 'scrapy_ddiy_exception'
+MONGO_PARAMS_EXCEPTION = {
+    'username': os.environ.get('MONGO_USERNAME_EXCEPTION', None),
+    'password': os.environ.get('MONGO_PASSWORD_EXCEPTION', None),
+    'authSource': os.environ.get('MONGO_AUTH_EXCEPTION', 'admin'),
 }

@@ -4,10 +4,11 @@
 """
 import os
 import sys
-from scrapy.utils.conf import arglist_to_dict
 from scrapy.exceptions import UsageError
-from scrapy_ddiy.utils.crawler import CustomCrawlerProcess
+from scrapy.utils.conf import arglist_to_dict
 from scrapy.utils.project import get_project_settings
+from scrapy_ddiy.utils.crawler import CustomCrawlerProcess
+from scrapy_ddiy.utils.project import get_project_settings
 
 
 def run_spider(spider_name, install_root_handler: bool = True, **kwargs):

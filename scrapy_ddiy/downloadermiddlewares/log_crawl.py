@@ -18,7 +18,7 @@ def default_err_back(spider: scrapy.Spider, failure: Failure):
     err_back(f'{err_msg}\nRaw request: [{request.method}] {request.url}  {request.body[:50]}')
 
 
-class LogCrawl(object):
+class LogCrawlMiddleware(object):
     log_crawling: bool
     log_parsing: bool
 

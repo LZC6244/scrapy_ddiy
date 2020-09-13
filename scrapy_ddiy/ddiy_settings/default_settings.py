@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import pymongo
+
 """
 default_settings for scrapy_ddiy
 """
@@ -6,8 +8,12 @@ default_settings for scrapy_ddiy
 DOWNLOADER_MIDDLEWARES = {
     # UserAgentMiddleware 默认优先级：500
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy_ddiy.downloadermiddlewares.custom_user_agent.CustomUserAgent': 501,
-    'scrapy_ddiy.downloadermiddlewares.log_crawl.LogCrawl': 510,
+    'scrapy_ddiy.downloadermiddlewares.custom_user_agent.CustomUserAgentMiddleware': 501,
+    'scrapy_ddiy.downloadermiddlewares.log_crawl.LogCrawlMiddleware': 510,
+}
+
+SPIDER_MIDDLEWARES = {
+   'scrapy_ddiy.spidermiddlewares.catch_parse_error.CatchParseErrorMiddleware': 510,
 }
 
 # 日志配置
@@ -50,11 +56,25 @@ REDIS_PARAMS = {
 SCHEDULER_PERSIST = False
 
 # MongoDB 配置
+# 存放数据的 MongoDB
 MONGO_URI = '127.0.0.1:27017'
 # MongoDB 默认存入的数据库库名
 MONGO_DATABASE = 'scrapy_ddiy_test'
 # pymongo.MongoClient 所需参数
 MONGO_PARAMS = {
+    'username': None,
+    'password': None,
+    'authSource': 'admin',
+}
+MONGO_INDEX_ASC = pymongo.ASCENDING
+MONGO_INDEX_DESC = pymongo.DESCENDING
+# 为数据库创建索引，如：{'index_1':MONGO_INDEX_ASC,'index_2':MONGO_INDEX_DESC,...}
+MONGO_INDEX_DICT = {}
+# 存放爬虫异常信息的 MongoDB
+MONGO_URI_EXCEPTION = '127.0.0.1:27017'
+MONGO_DATABASE_EXCEPTION = 'scrapy_ddiy_exception'
+MONGO_COLLECTION_EXCEPTION = 'scrapy_ddiy_exception'
+MONGO_PARAMS_EXCEPTION = {
     'username': None,
     'password': None,
     'authSource': 'admin',

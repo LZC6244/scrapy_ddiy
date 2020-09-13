@@ -23,7 +23,7 @@ USER_AGENTS = [
 ]
 
 
-class CustomUserAgent(UserAgentMiddleware):
+class CustomUserAgentMiddleware(UserAgentMiddleware):
 
     def __init__(self, user_agent='Scrapy'):
         if isinstance(user_agent, str) and 'scrapy' in user_agent.lower():
