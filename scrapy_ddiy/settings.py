@@ -58,9 +58,9 @@ COOKIES_ENABLED = False
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
-# EXTENSIONS = {
-#    'scrapy.extensions.telnet.TelnetConsole': None,
-# }
+EXTENSIONS = {
+    'scrapy_ddiy.extensions.exceptions_mail.ExceptionsMail': 100,
+}
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
@@ -91,3 +91,4 @@ ITEM_PIPELINES = {
 
 LOG_LEVEL = 'INFO'
 MONGO_DATABASE = 'scrapy_ddiy_test'
+Exceptions_Mail_ENABLED = True
