@@ -6,7 +6,8 @@ from time import sleep
 from DingTalkBot.bot import DingTalkBot
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-from scrapy_ddiy.utils.common import get_settings, get_redis_conn
+from scrapy_ddiy.utils.common import get_redis_conn
+from scrapy_ddiy.utils.project import get_project_settings
 
 """
 钉钉聊天机器人提醒,推荐用来发送少量、紧急的消息
@@ -20,7 +21,7 @@ def ding_talk_bot_notify(msg_interval=5):
     :param msg_interval: 每条消息之间的发送间隔
     :return:
     """
-    settings = get_settings()
+    settings = get_project_settings()
     redis_conn = get_redis_conn(settings)
     web_hook = os.environ.get('DING_WEB_HOOK')
     ding_secret = os.environ.get('DING_SECRET')

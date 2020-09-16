@@ -17,10 +17,10 @@ class DemoSpider(DdiyRedisSpider):
     }
 
     def make_request_from_data(self, data):
-        demo_url = f'https://www.baidu.com/#{data}'
+        demo_url = f'https://www.baidu.com/s?wd={data}'
         yield Request(url=demo_url, callback=self.parse, dont_filter=True)
 
-        demo_url_2 = f'https://www.baidu.com/#{data}-{data}'
+        demo_url_2 = f'https://www.baidu.com/s?wd={data}-{data}'
         yield Request(url=demo_url_2, callback=self.parse, dont_filter=True)
 
     def parse(self, response):

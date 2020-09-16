@@ -13,7 +13,9 @@ DOWNLOADER_MIDDLEWARES = {
 }
 
 SPIDER_MIDDLEWARES = {
-   'scrapy_ddiy.spidermiddlewares.catch_parse_error.CatchParseErrorMiddleware': 510,
+    # CatchParseErrorMiddleware 优先级须为最高，否则其 process_spider_exception 会重复执行（前面有几个就额外执行几次）
+    'scrapy_ddiy.spidermiddlewares.catch_parse_error.CatchParseErrorMiddleware': 998,
+
 }
 
 # 日志配置
@@ -80,6 +82,10 @@ MONGO_PARAMS_EXCEPTION = {
     'authSource': 'admin',
 }
 
+# EXTENSIONS = {
+#     'scrapy_ddiy.extensions.exceptions_mail.ExceptionsMail': 100,
+# }
+
 # 批量保存入库的 item 数
 BULK_INSERT = 5
 # 禁用 Telnet Console （scrapy 默认启用，Telnet 使用明文传输，不安全）
@@ -97,3 +103,19 @@ DING_TALK_BOT_CONTACTS = 'DingTalkBot:contacts'
 # scrapy_ddiy 告警消息（预警/通知/自定义）的 list 名，如：[]
 WARN_MESSAGES_LIST = 'scrapy_ddiy:warn_messages'
 WARN_MESSAGES_LIST_FAILED = 'scrapy_ddiy:warn_messages_failed'
+
+# 测试环境中出现解析异常是否关闭爬虫
+CLOSE_SPIDER_WHEN_PARSED_ERROR = True
+# 是否发送异常邮件（如：解析异常、保存数据异常等）
+Exceptions_Mail_ENABLED = False
+
+# 异常保存在 MongoDB 的时间，单位为天
+EXCEPTION_EXPIRE = 15
+
+# 邮箱配置
+MAIL_HOST = 'localhost'
+MAIL_PORT = 25
+MAIL_FROM = 'scrapy@localhost'
+MAIL_PASS = None
+MAIL_USER = None
+MAIL_SSL = True

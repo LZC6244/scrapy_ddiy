@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import json
 import redis
 import pymongo
@@ -28,10 +29,13 @@ class DdiyBaseSpider(Spider):
     redis_cli: redis.Redis
     # 预设给爬虫使用的 MongoDB 连接，用于记录爬虫异常信息
     mongo_cli: pymongo.MongoClient
+    mongo_coll: pymongo.collection.Collection
     # 本机内网 IP
     _local_ip: str
     # 是否为线上环境
     is_online: bool
+    # 临时保存异常信息的列表
+    _exceptions_li = []
 
     @classmethod
     def update_settings(cls, settings):
@@ -58,6 +62,19 @@ class DdiyBaseSpider(Spider):
             # 仅在正式环境启用异常记录，应尽可能在开发爬虫时处理完异常情况
             self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI_EXCEPTION'),
                                                  **self.settings.getdict('MONGO_PARAMS_EXCEPTION'))
+            self.mongo_coll = self.mongo_cli[self.settings.get('MONGO_DATABASE_EXCEPTION')][
+                self.settings.get('MONGO_COLLECTION_EXCEPTION')]
+            index_name_li = list(self.mongo_coll.index_information().keys())
+            index_name = 'warn_time'
+            index_exists = False
+            for i in index_name_li:
+                if re.search(f'{index_name}_-?1', i):
+                    index_exists = True
+                    break
+            if not index_exists:
+                self.mongo_coll.create_index([(index_name, self.settings.get('MONGO_INDEX_ASC'))],
+                                             expireAfterSeconds=self.settings.getint('EXCEPTION_EXPIRE',
+                                                                                     15) * 24 * 60 * 60)
         else:
             # 防止开发爬虫时污染线上数据
             self.logger.info('Non-online environment!Set the database table name to "scrapy_ddiy_test"')
