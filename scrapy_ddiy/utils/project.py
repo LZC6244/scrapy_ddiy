@@ -76,4 +76,9 @@ def get_project_settings():
         )
     settings.setdict(scrapy_envvars, priority='project')
 
+    project_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
+    current_path = os.getcwd()
+    if not current_path.startswith(project_path):
+        raise EnvironmentError(
+            f'The program runs in a non-project path (current_path:{current_path} => project_path:{project_path})')
     return settings
