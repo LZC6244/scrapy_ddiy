@@ -117,5 +117,15 @@ MAIL_HOST = 'localhost'
 MAIL_PORT = 25
 MAIL_FROM = 'scrapy@localhost'
 MAIL_PASS = None
+# 用户 SMTP 验证，如：'xx@xx.com'
 MAIL_USER = None
 MAIL_SSL = True
+# 收信人列表 ['xx@xx.com',...]
+MAIL_TO = None
+# 抄送人列表 ['xx@xx.com',...]
+MAIL_CC = None
+
+# RedisBloomDupeFilter only for for redis-spider
+DUPEFILTER_CLASS = 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter'
+# REDIS_BLOOM_ERROR_RATE = 0.0001
+# REDIS_BLOOM_CAPACITY = 10000000

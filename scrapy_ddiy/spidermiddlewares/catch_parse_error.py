@@ -41,9 +41,9 @@ class CatchParseErrorMiddleware(object):
         exception_info = {'_id': exception_md5, 'exception_type': 'Parse Error', 'server_ip': spider._local_ip,
                           'pid': self.pid, 'callback_name': callback_name, 'exec_info': exec_info,
                           'request_info': request_info, 'response_info': response.text, 'warn_time': datetime.now()}
-        if hasattr(spider, 'mongo_coll'):
+        if spider.is_online:
             try:
-                # spider.mongo_coll.insert_one(exception_info)
+                spider.mongo_coll_exec.insert_one(exception_info)
                 spider.logger.warning(f'Parsed error id is {exception_md5}')
             except DuplicateKeyError:
                 # 不插入重复异常
@@ -51,12 +51,11 @@ class CatchParseErrorMiddleware(object):
             except Exception as e:
                 spider.send_ding_bot_msg(repr(e))
         if getattr(spider, '_exceptions_mail_on', False):
-            spider._exceptions_li.append(exception_info)
+            spider._exception_info = exception_info
         spider.crawler.stats.inc_value('parse_error_count')
-        # spider.crawler.stats.inc_value(f'parse_error_count/response_status_{response.status}')
-        # spider.logger.error(msg)
-        # if not spider.is_online and self.close_spider_when_parsed_error:
-        #     spider.crawler.engine.close_spider(spider, 'Parsed error when spider running in not online environment')
+        spider.crawler.stats.inc_value(f'parse_error_count/response_status_{response.status}')
+        if not spider.is_online and self.close_spider_when_parsed_error:
+            spider.crawler.engine.close_spider(spider, 'Parsed error when spider running in not online environment')
 
     def spider_opened(self, spider):
         self.start_time = str(spider.crawler.stats.get_value('start_time'))

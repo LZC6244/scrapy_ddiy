@@ -58,9 +58,9 @@ COOKIES_ENABLED = False
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
-EXTENSIONS = {
-    'scrapy_ddiy.extensions.exceptions_mail.ExceptionsMail': 100,
-}
+# EXTENSIONS = {
+#     'scrapy_ddiy.extensions.exceptions_mail.ExceptionsMail': 100,
+# }
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
@@ -90,5 +90,6 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 LOG_LEVEL = 'INFO'
-MONGO_DATABASE = 'scrapy_ddiy_test'
+# MONGO_DATABASE = 'scrapy_ddiy_test'
 Exceptions_Mail_ENABLED = True
+SCHEDULER_PERSIST = False
