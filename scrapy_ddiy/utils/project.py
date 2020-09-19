@@ -23,31 +23,10 @@ def get_project_settings():
     settings = Settings()
     settings_module_path = os.environ.get(ENVVAR)
     if settings_module_path:
+        _update_settings(settings, default_settings)
         settings.setmodule(settings_module_path, priority='project')
-
-        # 载入 scrapy_ddiy 的默认设置
-        for name in dir(default_settings):
-            if not name.isupper():
-                continue
-            default_value = getattr(default_settings, name)
-            current_value = settings.get(name)
-            if current_value:
-                if isinstance(default_value, dict):
-                    for k, v in default_value.items():
-                        current_value[k] = current_value.get(k) or default_value.get(k)
-            else:
-                # 以 settings 中配置为最终配置
-                settings.set(name, default_value)
         if os.environ.get('ENV_FLAG_DDIY') == 'online':
-            # 载入 scrapy_ddiy 的线上设置，线上配置为最高优先级配置
-            for name in dir(online_settings):
-                if not name.isupper():
-                    continue
-                online_value = getattr(online_settings, name)
-                current_value = settings.get(name)
-                if isinstance(online_value, dict):
-                    for k, v in online_value.items():
-                        current_value[k] = online_value[k]
+            _update_settings(settings, online_settings)
 
     pickled_settings = os.environ.get("SCRAPY_PICKLED_SETTINGS_TO_OVERRIDE")
     if pickled_settings:
@@ -82,3 +61,22 @@ def get_project_settings():
         raise EnvironmentError(
             f'The program runs in a non-project path (current_path:{current_path} => project_path:{project_path})')
     return settings
+
+
+def _update_settings(settings: Settings, new_settings):
+    """
+    更新框架配置
+    :param settings: type is module
+    :param new_settings: default_settings, online_settings, ...
+    :return:
+    """
+    for name in dir(new_settings):
+        if not name.isupper():
+            continue
+        new_value = getattr(new_settings, name)
+        current_value = settings.get(name)
+        if not current_value or not isinstance(new_value, dict):
+            settings.set(name, new_value)
+        else:
+            for k, v in new_value.items():
+                current_value[k] = new_value[k]
