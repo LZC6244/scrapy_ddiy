@@ -6,8 +6,8 @@ Scrapy 自定义框架组件，项目练习, 支持 Redis 爬虫
 Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 
 ## 环境需求
-- Redis server
-- MongoDB server
+- Redis server 4.0.9+
+- MongoDB server 4.2+
 
 ## 项目配置
 本项目分为线上、测试环境，通过 `settings => ENV_FLAG_DDIY` 进行区分。  
@@ -62,6 +62,6 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
   由于 MongoDB 默认会将 _id 置为主键，当 **同一个请求中解析出多条数据** 时请注意配置   
   `spider.process_parsed_item` 不要计算 `_id` 或 为 item 传入 `_id`  
   （MongoDB 不存在 _id 时 会生成与入库时间相关的 ObjectId 作为主键）
-- 非线上环境时（环境变量 'ENV_FLAG_DDIY') != 'online'），为了防止污染线上数据，会将数据库库名统一置为 `scrapy_ddiy_test`
+- 非线上环境时（环境变量 'ENV_FLAG_DDIY' != 'online'），为了防止污染线上数据，会将数据库库名统一置为 `scrapy_ddiy_test`
 - 使用 `-a` 传递参数时请注意该参数名是否会影响爬虫本身逻辑，Scrapy 原生会将传递的参数置为爬虫的属性
 - MongoDB 管道目前仅支持单字段索引，若要创建复合索引或进行其他复杂操作，请自行在 spider.custom_init 方法中执行
