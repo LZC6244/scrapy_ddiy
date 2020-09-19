@@ -28,14 +28,14 @@ class DdiyBaseSpider(Spider):
     # 预设给爬虫使用的 Redis 连接（如 scrapy_redis 、 记录告警信息）
     redis_cli: redis.Redis
     # 预设给爬虫使用的 MongoDB 连接，用于记录爬虫异常信息
-    mongo_cli: pymongo.MongoClient
-    mongo_coll: pymongo.collection.Collection
+    mongo_cli_exec: pymongo.MongoClient
+    mongo_coll_exec: pymongo.collection.Collection
     # 本机内网 IP
     _local_ip: str
     # 是否为线上环境
     is_online: bool
-    # 临时保存异常信息的列表
-    _exceptions_li = []
+    # 临时保存异常信息的字典
+    _exceptions_info: dict
 
     @classmethod
     def update_settings(cls, settings):
@@ -51,20 +51,18 @@ class DdiyBaseSpider(Spider):
         pass
 
     def base_init(self, *args, **kwargs):
-        if hasattr(self, 'server'):
-            self.redis_cli = self.server
-        else:
-            self.redis_cli = redis.Redis(host=self.settings.get('REDIS_HOST'), port=self.settings.get('REDIS_PORT'),
-                                         **self.settings.getdict('REDIS_PARAMS'))
+        self.redis_cli = getattr(self, 'server', None) or \
+                         redis.Redis(host=self.settings.get('REDIS_HOST'), port=self.settings.get('REDIS_PORT'),
+                                     **self.settings.getdict('REDIS_PARAMS'))
         self._local_ip = get_local_ip()
         self.is_online = os.environ.get('ENV_FLAG_DDIY') == 'online'
         if self.is_online:
             # 仅在正式环境启用异常记录，应尽可能在开发爬虫时处理完异常情况
-            self.mongo_cli = pymongo.MongoClient(self.settings.get('MONGO_URI_EXCEPTION'),
-                                                 **self.settings.getdict('MONGO_PARAMS_EXCEPTION'))
-            self.mongo_coll = self.mongo_cli[self.settings.get('MONGO_DATABASE_EXCEPTION')][
+            self.mongo_cli_exec = pymongo.MongoClient(self.settings.get('MONGO_URI_EXCEPTION'),
+                                                      **self.settings.getdict('MONGO_PARAMS_EXCEPTION'))
+            self.mongo_coll_exec = self.mongo_cli_exec[self.settings.get('MONGO_DATABASE_EXCEPTION')][
                 self.settings.get('MONGO_COLLECTION_EXCEPTION')]
-            index_name_li = list(self.mongo_coll.index_information().keys())
+            index_name_li = list(self.mongo_coll_exec.index_information().keys())
             index_name = 'warn_time'
             index_exists = False
             for i in index_name_li:
@@ -72,12 +70,12 @@ class DdiyBaseSpider(Spider):
                     index_exists = True
                     break
             if not index_exists:
-                self.mongo_coll.create_index([(index_name, self.settings.get('MONGO_INDEX_ASC'))],
-                                             expireAfterSeconds=self.settings.getint('EXCEPTION_EXPIRE',
-                                                                                     15) * 24 * 60 * 60)
+                self.mongo_coll_exec.create_index([(index_name, self.settings.get('MONGO_INDEX_ASC'))],
+                                                  expireAfterSeconds=self.settings.getint('EXCEPTION_EXPIRE',
+                                                                                          15) * 24 * 60 * 60)
         else:
             # 防止开发爬虫时污染线上数据
-            self.logger.info('Non-online environment!Set the database table name to "scrapy_ddiy_test"')
+            self.logger.info('Non-online environment! Set the database table name to "scrapy_ddiy_test"')
             self.table_name_ddiy = 'scrapy_ddiy_test'
 
     @classmethod
@@ -86,8 +84,8 @@ class DdiyBaseSpider(Spider):
         spider.base_init(*args, **kwargs)
         spider.custom_init(*args, **kwargs)
         if spider.is_online:
-            assert spider.mongo_cli.server_info(), 'MongoDB for logging exceptions  failed to establish a connection, ' \
-                                                   'please check the settings '
+            assert spider.mongo_cli_exec.server_info(), 'MongoDB for logging exceptions  failed to establish a connection, ' \
+                                                        'please check the settings '
         assert spider.redis_cli.info(), 'Redis failed to establish a connection, please check the settings'
         assert spider.description, 'Please fill in a description for the Spider, such as: "Sample Spider", ' \
                                    '"XX-Spider" ... '
@@ -122,7 +120,7 @@ class DdiyBaseSpider(Spider):
 
     def closed(self, reason):
         if self.is_online:
-            self.mongo_cli.close()
+            self.mongo_cli_exec.close()
         self.redis_cli.close()
 
 
