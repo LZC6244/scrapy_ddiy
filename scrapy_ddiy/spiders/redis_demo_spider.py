@@ -14,14 +14,15 @@ class DemoSpider(DdiyRedisSpider):
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,
+        # 'DUPEFILTER_CLASS': 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter',
     }
 
     def make_request_from_data(self, data):
         demo_url = f'https://www.baidu.com/s?wd={data}'
-        yield Request(url=demo_url, callback=self.parse, dont_filter=True)
+        yield Request(url=demo_url, callback=self.parse)
 
         demo_url_2 = f'https://www.baidu.com/s?wd={data}-{data}'
-        yield Request(url=demo_url_2, callback=self.parse, dont_filter=True)
+        yield Request(url=demo_url_2, callback=self.parse)
 
     def parse(self, response):
         self.logger.info(f"{response.url} ==> I'm a redis demo spider.")
