@@ -42,4 +42,6 @@ Exceptions_Mail_ENABLED = True
 MAIL_HOST = env.get('MAIL_HOST_DDIY', 'localhost')
 MAIL_PORT = env.get('MAIL_PORT_DDIY', 25)
 MAIL_FROM = env.get('MAIL_FROM_DDIY', 'scrapy@localhost')
+MAIL_USER = env.get('MAIL_USER_DDIY', 'scrapy@localhost')
+MAIL_TO = env.get('MAIL_TO_DDIY', 'scrapy@localhost')
 MAIL_PASS = env.get('MAIL_PASS_DDIY')
