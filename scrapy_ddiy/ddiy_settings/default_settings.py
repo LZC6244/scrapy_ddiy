@@ -126,6 +126,6 @@ MAIL_TO = None
 MAIL_CC = None
 
 # RedisBloomDupeFilter only for for redis-spider
-DUPEFILTER_CLASS = 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter'
+# DUPEFILTER_CLASS = 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter'
 # REDIS_BLOOM_ERROR_RATE = 0.0001
 # REDIS_BLOOM_CAPACITY = 10000000

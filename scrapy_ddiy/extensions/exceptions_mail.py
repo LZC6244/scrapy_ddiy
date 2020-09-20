@@ -34,7 +34,9 @@ class ExceptionsMail(object):
         self.spider_start_time = spider.crawler.stats.get_value('start_time')
 
     def handle_spider_error(self, spider):
-        exception_info = spider._exception_info
+        exception_info = getattr(spider, '_exception_info', None)
+        if not exception_info:
+            return
         exception_info.pop('response_info', None)
         exception_info['exception_id'] = exception_info.pop('_id', None)
         exception_info['spider_start_time'] = self.spider_start_time

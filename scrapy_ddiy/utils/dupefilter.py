@@ -21,8 +21,8 @@ class RedisBloomDupeFilter(RFPDupeFilter):
                              **settings.get('REDIS_PARAMS'))
         error_rate = settings.getfloat('REDIS_BLOOM_ERROR_RATE')
         capacity = settings.getfloat('REDIS_BLOOM_CAPACITY')
-        assert error_rate, "Please the 'REDIS_BLOOM_ERROR_RATE' for the spider"
-        assert capacity, "Please the 'REDIS_BLOOM_CAPACITY' for the spider"
+        assert error_rate, "Please set the 'REDIS_BLOOM_ERROR_RATE' for the spider"
+        assert capacity, "Please set the 'REDIS_BLOOM_CAPACITY' for the spider"
         if not self.server.keys(key):
             try:
                 self.server.bfCreate(key, error_rate, capacity)

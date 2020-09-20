@@ -39,9 +39,9 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 - [x] 启用日志时可以决定是否保留输出到控制台，默认保留输出`(settings => LOG_TO_CONSOLE)`
 - [x] 自动创建 `Item` ，使用 MongoDB 时不必每次定义 item ，直接 yield 解析好的 item 即可 (spider.process_parsed_item)
 - [x] 默认禁用 **Telnet Console**
-- [ ] 预警功能，暂定钉钉和邮件
-- [ ] **spidermiddlewares** 处理解析异常，异常保存到 **MongoDB** ...
-- [ ] **downloanmiddlewares** 处理请求、响应异常
+- [x] 异常邮件预警，钉钉自定义消息预警
+- [x] **spidermiddlewares** 处理解析异常，异常保存到 **MongoDB** ...
+- [ ] **downloanmiddlewares** 处理请求、响应异常（譬如重试？）
 - [x] 记录爬取状态的下载中间件，设置默认 `errback`
 - [x] MongoDB 管道自动创建索引`(settings => MONGO_INDEX_DICT)`
 
@@ -55,7 +55,7 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 - [ ] 去重队列可选择使用布隆过滤器
 - [ ] 框架层面处理 Redis 爬虫中需要去重但是重试指定次数后仍失败的请求，将其从去重队列删除
 - [x] 爬虫提供发送告警信息方法 (spider.send_ding_bot_msg)
-- [ ] 钉钉提醒时接入 `@` 某（些）人功能
+- [ ] 钉钉发送预警消息时接入 `@` 某（些）人功能
 
 ## 注意事项
 - `spider.process_parsed_item` 会默认通过请求计算 `_id` （当 item 传入 _id 不会将其覆盖）  
