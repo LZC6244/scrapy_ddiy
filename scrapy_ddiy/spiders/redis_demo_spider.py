@@ -14,6 +14,7 @@ class DemoSpider(DdiyRedisSpider):
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,
+        # 'SCHEDULER': 'scrapy_ddiy.utils.scheduler.SchedulerDdiy',
         # 'DUPEFILTER_CLASS': 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter',
         # 'REDIS_BLOOM_CAPACITY': 1000,
         # 'REDIS_BLOOM_ERROR_RATE': 0.01,

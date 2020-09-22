@@ -44,6 +44,7 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 - [ ] **downloanmiddlewares** 处理请求、响应异常（譬如重试？）
 - [x] 记录爬取状态的下载中间件，设置默认 `errback`
 - [x] MongoDB 管道自动创建索引`(settings => MONGO_INDEX_DICT)`
+- [x] 去重队列可选择布隆过滤器  [如何使用？](https://github.com/LZC6244/scrapy_ddiy/wiki/%E5%8E%BB%E9%87%8D%E9%98%9F%E5%88%97%E4%BD%BF%E7%94%A8Redis%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8)
 
 ## 爬虫列表
 - xxx
@@ -52,7 +53,6 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 
 ## TODO
 - [ ] 使用 **ORM** 添加处理 sql 数据库的管道
-- [ ] 去重队列可选择使用布隆过滤器
 - [ ] 框架层面处理 Redis 爬虫中需要去重但是重试指定次数后仍失败的请求，将其从去重队列删除
 - [x] 爬虫提供发送告警信息方法 (spider.send_ding_bot_msg)
 - [ ] 钉钉发送预警消息时接入 `@` 某（些）人功能
