@@ -86,7 +86,7 @@ class DdiyBaseSpider(Spider):
         if spider.is_online:
             assert spider.mongo_cli_exec.server_info(), 'MongoDB for logging exceptions  failed to establish a connection, ' \
                                                         'please check the settings '
-        assert spider.redis_cli.info(), 'Redis failed to establish a connection, please check the settings'
+        assert spider.redis_cli.ping(), 'Redis failed to establish a connection, please check the settings'
         assert spider.description, 'Please fill in a description for the Spider, such as: "Sample Spider", ' \
                                    '"XX-Spider" ... '
 
