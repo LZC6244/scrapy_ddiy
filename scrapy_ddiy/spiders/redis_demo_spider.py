@@ -15,6 +15,8 @@ class DemoSpider(DdiyRedisSpider):
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,
         # 'DUPEFILTER_CLASS': 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter',
+        # 'REDIS_BLOOM_CAPACITY': 1000,
+        # 'REDIS_BLOOM_ERROR_RATE': 0.01,
     }
 
     def make_request_from_data(self, data):

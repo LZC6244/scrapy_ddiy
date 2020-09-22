@@ -20,7 +20,7 @@ class DdiyRedisSpider(DdiyBaseSpider, RedisSpider):
     _idle_times_max: int
     _ddiy_settings = deepcopy(DdiyBaseSpider._ddiy_settings)
     _ddiy_settings.update({
-        'SCHEDULER': 'scrapy_redis.scheduler.Scheduler',
+        'SCHEDULER': 'scrapy_ddiy.utils.scheduler.SchedulerDdiy',
         'DUPEFILTER_CLASS': 'scrapy_redis.dupefilter.RFPDupeFilter',
     })
 
