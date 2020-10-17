@@ -33,12 +33,9 @@ MONGO_PARAMS_EXCEPTION = {
     'authSource': env.get('MONGO_AUTH_EXCEPTION', 'admin'),
 }
 
-EXTENSIONS = {
-    'scrapy_ddiy.extensions.exceptions_mail.ExceptionsMail': 100,
-}
-
 Exceptions_Mail_ENABLED = True
 
+ENABLE_MAIL = True
 MAIL_HOST = env.get('MAIL_HOST_DDIY', 'localhost')
 MAIL_PORT = env.get('MAIL_PORT_DDIY', 25)
 MAIL_FROM = env.get('MAIL_FROM_DDIY', 'scrapy@localhost')
