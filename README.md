@@ -1,5 +1,5 @@
 # scrapy_ddiy
-Scrapy 自定义框架组件，项目练习, 支持 Redis 爬虫
+Scrapy 自定义框架组件，爬虫项目练习, 支持 Redis 爬虫
 
 **请在项目路径下运行本项目相关程序！**  
 
@@ -14,6 +14,8 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 线上环境相关配置可通过 `ddiy_settings/online_settings.py` 进行配置
 
 ## 新建爬虫
+- 将本项目 clone 到本地，在 spiders 文件夹中创建爬虫即可。（或在项目路径下使用`scrapy genspider spider_name` ）  
+  **请务必继承以下爬虫！！！**
 - 普通 Scrapy 爬虫请继承 `scrapy_ddiy.utils.spiders.ddiy_base.DdiyBaseSpider` 爬虫
 - Redis 爬虫请继承 `scrapy_ddiy.utils.spiders.ddiy_redis.DdiyRedisSpider` 爬虫
 
@@ -47,7 +49,7 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 - [x] 去重队列可选择布隆过滤器  [如何使用？](https://github.com/LZC6244/scrapy_ddiy/wiki/%E5%8E%BB%E9%87%8D%E9%98%9F%E5%88%97%E4%BD%BF%E7%94%A8Redis%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8)
 
 ## 爬虫列表
-- xxx
+- [GlidedSky 系列爬虫](https://github.com/LZC6244/scrapy_ddiy/wiki/GlidedSky-home)
 - xxx
 - ...
 
