@@ -20,6 +20,9 @@ class AlapiDogSpider(DdiyBaseSpider):
         'BULK_INSERT': 10,
         'DOWNLOAD_DELAY': 2,
         'HTTPERROR_ALLOWED_CODES': [429],
+        'ITEM_PIPELINES': {
+            'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
+        }
     }
 
     def start_requests(self):

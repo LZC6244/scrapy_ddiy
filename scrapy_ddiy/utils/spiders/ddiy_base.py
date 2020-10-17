@@ -6,7 +6,10 @@ import redis
 import pymongo
 from scrapy import Spider
 from datetime import datetime
+from scrapy.mail import MailSender
 from scrapy.item import Item, Field
+from scrapy.settings import Settings, BaseSettings
+
 from scrapy_ddiy.utils.common import get_request_md5, get_local_ip
 
 """
@@ -34,14 +37,18 @@ class DdiyBaseSpider(Spider):
     _local_ip: str
     # 是否为线上环境
     is_online: bool
-    # 临时保存异常信息的字典
-    _exceptions_info: dict
+
+    # 邮件配置
+    mail_to: str
+    mail_cc: str
+    mail_sender: MailSender
+    _init_mailer: bool
 
     @classmethod
     def update_settings(cls, settings):
         now = datetime.now().strftime('%Y-%m-%dT%H_%M_%S')
-        settings.setdict(cls._ddiy_settings or {}, priority='spider')
-        settings.setdict(cls.custom_settings or {}, priority='spider')
+        _update_settings(settings, cls._ddiy_settings or {}, priority='spider')
+        _update_settings(settings, cls.custom_settings or {}, priority='spider')
         if settings.getbool('MAKE_LOG_FILE'):
             log_file = settings.get('LOG_FILE', f'spider_logs/{cls.name}/{cls.name}__{now}__{os.getpid()}.log')
             make_log_dir(log_file)
@@ -78,14 +85,24 @@ class DdiyBaseSpider(Spider):
             self.logger.info('Non-online environment! Set the database table name to "scrapy_ddiy_test"')
             self.table_name_ddiy = 'scrapy_ddiy_test'
 
+        if self.settings.getbool('ENABLE_MAIL'):
+            self.mail_to = self.settings.getlist('MAIL_TO')
+            assert self.mail_to, "Please set the 'MAIL_TO' for the spider"
+            self.mail_cc = self.settings.getlist('MAIL_CC')
+            self.mail_sender = MailSender.from_settings(self.settings)
+            if self.mail_sender.smtphost == 'localhost':
+                raise AttributeError(
+                    'Please set the settings like [https://doc.scrapy.org/en/latest/topics/email.html#mail-settings]')
+            self._init_mailer = True
+
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
         spider.base_init(*args, **kwargs)
         spider.custom_init(*args, **kwargs)
         if spider.is_online:
-            assert spider.mongo_cli_exec.server_info(), 'MongoDB for logging exceptions  failed to establish a connection, ' \
-                                                        'please check the settings '
+            assert spider.mongo_cli_exec.server_info(), 'MongoDB for logging exceptions  failed to establish a ' \
+                                                        'connection, please check the settings '
         assert spider.redis_cli.ping(), 'Redis failed to establish a connection, please check the settings'
         assert spider.description, 'Please fill in a description for the Spider, such as: "Sample Spider", ' \
                                    '"XX-Spider" ... '
@@ -118,6 +135,24 @@ class DdiyBaseSpider(Spider):
         self.crawler.stats.inc_value('warn_msg_count/ding_bot')
         self.redis_cli.rpush(self.settings.get('WARN_MESSAGES_LIST'), json.dumps(msg_dict, ensure_ascii=False))
 
+    def send_mail(self, warn_type: str, warn_msg: str or dict):
+        if not getattr(self, '_init_mailer', False):
+            raise UserWarning("Can't use 'send_mail' when 'ENABLE_MAIL' is not True")
+        mail_subject = f'Spider-Warning:  {warn_type}'
+        if isinstance(warn_msg, dict):
+            mail_body = '\n'.join(
+                [f'<tr><td><font size="4">{k}</font></td><td><font size="4">{v}</font></td></tr>'.replace('\n', '<br>')
+                 for k, v in warn_msg.items()])
+            mail_body = '<table border="1">' + mail_body + '</table>'
+            mime_type = 'text/html'
+        elif isinstance(warn_msg, str):
+            mail_body = warn_msg
+            mime_type = 'text/plain'
+        else:
+            raise AttributeError("'warn_msg' must be str or dict")
+        self.mail_sender.send(to=self.mail_to, subject=mail_subject, body=mail_body, cc=self.mail_cc,
+                              mimetype=mime_type)
+
     def closed(self, reason):
         if self.is_online:
             self.mongo_cli_exec.close()
@@ -131,3 +166,12 @@ def make_log_dir(log_file: str = None):
     log_dir = os.path.join(current_dir, '../../..', os.path.split(log_file)[0])
     os.makedirs(log_dir, exist_ok=True)
     # print(os.path.normpath(log_dir))
+
+
+def _update_settings(settings: Settings, new_settings: dict, priority='project'):
+    for k, v in new_settings.items():
+        old_k_value = settings.get(k)
+        if isinstance(old_k_value, BaseSettings):
+            old_k_value.update(v)
+            v = old_k_value
+        settings.set(k, v, priority)

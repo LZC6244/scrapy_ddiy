@@ -14,6 +14,9 @@ class DemoSpider(DdiyRedisSpider):
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,
+        'ITEM_PIPELINES': {
+            'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
+        },
         # 'SCHEDULER': 'scrapy_ddiy.utils.scheduler.SchedulerDdiy',
         # 'DUPEFILTER_CLASS': 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter',
         # 'REDIS_BLOOM_CAPACITY': 1000,

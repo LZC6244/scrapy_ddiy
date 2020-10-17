@@ -14,6 +14,9 @@ class DemoSpider(DdiyBaseSpider):
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,
+        'ITEM_PIPELINES': {
+            'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
+        }
     }
 
     def parse(self, response):

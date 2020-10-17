@@ -27,7 +27,7 @@ if __name__ == '__main__':
         for arg in run_arg_li[2:]:
             if arg == '-a':
                 continue
-            spider_arg_li.append(arg.strip('\'"'))
+            spider_arg_li.append(arg)
         try:
             spider_add_option: dict = arglist_to_dict(spider_arg_li)
         except Exception as e:
