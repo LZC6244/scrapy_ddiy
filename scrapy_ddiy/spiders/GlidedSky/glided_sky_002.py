@@ -12,9 +12,12 @@ class GlidedSky002Spider(DdiyBaseSpider):
     custom_settings = {
         'COOKIES_ENABLED': True,
         'DOWNLOADER_MIDDLEWARES': {
-            'scrapy_ddiy.downloadermiddlewares.glided_sky_downloadmiddleware.GlidedSkyMiddleware': 812,
+            'scrapy_ddiy.downloadermiddlewares.glided_sky_downloadmiddleware.GlidedSkyMiddleware': 589,
         },
     }
+
+    def start_requests(self):
+        yield Request(url=self.start_url, callback=self.parse)
 
     def parse(self, response):
         if self.first_page:
