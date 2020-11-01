@@ -11,7 +11,7 @@ class GlidedSky001Spider(DdiyBaseSpider):
     custom_settings = {
         'COOKIES_ENABLED': True,
         'DOWNLOADER_MIDDLEWARES': {
-            'scrapy_ddiy.downloadermiddlewares.glided_sky_downloadmiddleware.GlidedSkyMiddleware': 812,
+            'scrapy_ddiy.downloadermiddlewares.glided_sky_downloadmiddleware.GlidedSkyMiddleware': 589,
         },
     }
 

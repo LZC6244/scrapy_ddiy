@@ -1,4 +1,6 @@
 # scrapy_ddiy
+![visitors](https://visitor-badge.glitch.me/badge?page_id=LZC6244.scrapy_ddiy)
+
 Scrapy 自定义框架组件，爬虫项目练习, 支持 Redis 爬虫
 
 **请在项目路径下运行本项目相关程序！**  
