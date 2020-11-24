@@ -7,15 +7,14 @@ from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
 
 def get_m():
     """获取加密参数m"""
-    return subprocess.check_output(['node', 'scrapy_ddiy/scripts/js/yuanrenxue/01.js']).decode().strip()
+    return subprocess.check_output(['node', 'scrapy_ddiy/scripts/js/yuanrenxue/001.js']).decode().strip()
 
 
-class Yuanrenxue01(DdiyBaseSpider):
-    name = 'yuanrenxue_01'
-    description = '猿人学刷题平台-第一题js混乱源码'
+class Yuanrenxue001(DdiyBaseSpider):
+    name = 'yuanrenxue_001'
+    description = '猿人学刷题平台-第1题js混乱源码'
     # 总价
     total_price = 0
-    custom_settings = {'COOKIES_ENABLED': True}
 
     def start_requests(self):
         headers = {'User-Agent': 'yuanrenxue.project'}
