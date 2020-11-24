@@ -41,7 +41,7 @@ class AlapiDogSpider(DdiyBaseSpider):
             return False
         return True
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         if not self.check_status(response):
             return
         data = json.loads(response.text)

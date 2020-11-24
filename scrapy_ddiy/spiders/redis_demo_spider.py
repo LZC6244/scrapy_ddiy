@@ -30,7 +30,7 @@ class DemoSpider(DdiyRedisSpider):
         demo_url_2 = f'https://www.baidu.com/s?wd={data}-{data}'
         yield Request(url=demo_url_2, callback=self.parse)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         self.logger.info(f"{response.url} ==> I'm a redis demo spider.")
         item = {'k1': 'v1', 'k2': 'v2'}
         item = self.process_parsed_item(response, item)
