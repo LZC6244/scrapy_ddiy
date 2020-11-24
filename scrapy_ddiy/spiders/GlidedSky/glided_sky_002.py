@@ -19,7 +19,7 @@ class GlidedSky002Spider(DdiyBaseSpider):
     def start_requests(self):
         yield Request(url=self.start_url, callback=self.parse)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         if self.first_page:
             self.first_page = False
             max_page_num = response.xpath('//ul[@class="pagination"]/li[@class="page-item"]/a/text()')[-2].get()

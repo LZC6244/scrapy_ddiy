@@ -18,7 +18,7 @@ class GlidedSky001Spider(DdiyBaseSpider):
     def start_requests(self):
         yield Request(url=self.start_url, callback=self.parse)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         all_number = [int(i) for i in
                       response.xpath('//div[@class="card-body"]//div[@class="col-md-1"]/text()').getall()]
         self.logger.info(f'Sum or web number is {sum(all_number)}')

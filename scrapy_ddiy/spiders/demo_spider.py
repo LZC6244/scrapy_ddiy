@@ -19,7 +19,7 @@ class DemoSpider(DdiyBaseSpider):
         }
     }
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         self.logger.info("I'm a demo spider.")
         item = {'k1': 'v1', 'k2': 'v2'}
         item = self.process_parsed_item(response, item)

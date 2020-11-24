@@ -18,7 +18,7 @@ class AlapiQinghuaSpider(AlapiDogSpider):
             yield FormRequest(url=self.start_url, callback=self.parse, dont_filter=True,
                               headers=headers, formdata=form_data)
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         if not self.check_status(response):
             return
         data = json.loads(response.text)

@@ -32,7 +32,7 @@ class GlidedSky003Spider(DdiyBaseSpider):
     def start_requests(self):
         yield Request(url=self.start_url, callback=self.parse, meta={'set_proxy': True, 'origin_url': self.start_url})
 
-    def parse(self, response):
+    def parse(self, response, **kwargs):
         if response.status in self.handle_httpstatus_list:
             # 在此处无限重试，直到访问成功为止，因为少访问到网页最终计算出来的结果也将不对
             origin_url = response.meta.get('origin_url')
