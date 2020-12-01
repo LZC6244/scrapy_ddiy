@@ -20,7 +20,7 @@ class GlidedSky003Spider(DdiyBaseSpider):
         'INTERVAL_GET_PROXY': 15,
         'GLIDED_SKY_ENABLE_PROXY': True,
         'DOWNLOADER_MIDDLEWARES': {
-            'scrapy_ddiy.downloadermiddlewares.glided_sky_downloadmiddleware.GlidedSkyMiddleware': 589,
+            'scrapy_ddiy.spiders.GlidedSky.glided_sky_downloadmiddleware.GlidedSkyMiddleware': 589,
         },
     }
     handle_httpstatus_list = [500, 502, 503, 504, 522, 524, 408, 429, 403, 302]
