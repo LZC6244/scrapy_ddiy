@@ -32,8 +32,7 @@ MONGO_PARAMS_EXCEPTION = {
     'password': env.get('MONGO_PASSWORD_EXCEPTION', None),
     'authSource': env.get('MONGO_AUTH_EXCEPTION', 'admin'),
 }
-
-Exceptions_Mail_ENABLED = True
+CLOSE_SPIDER_WHEN_PARSED_ERROR = False
 
 ENABLE_MAIL = True
 MAIL_HOST = env.get('MAIL_HOST_DDIY', 'localhost')
@@ -42,3 +41,5 @@ MAIL_FROM = env.get('MAIL_FROM_DDIY', 'scrapy@localhost')
 MAIL_USER = env.get('MAIL_USER_DDIY', 'scrapy@localhost')
 MAIL_TO = env.get('MAIL_TO_DDIY', 'scrapy@localhost')
 MAIL_PASS = env.get('MAIL_PASS_DDIY')
+
+SAVE_AND_SEND_EXCEPTION = True

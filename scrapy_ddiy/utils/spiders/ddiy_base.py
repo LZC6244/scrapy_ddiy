@@ -37,6 +37,10 @@ class DdiyBaseSpider(Spider):
     _local_ip: str
     # 是否为线上环境
     is_online: bool
+    # 是否保存异常到 MongoDB 且发送邮件
+    save_and_send_exception: bool
+    # 表明发送提醒消息的方法
+    send_msg_method: str
 
     # 邮件配置
     mail_to: str
@@ -63,8 +67,9 @@ class DdiyBaseSpider(Spider):
                                      **self.settings.getdict('REDIS_PARAMS'))
         self._local_ip = get_local_ip()
         self.is_online = os.environ.get('ENV_FLAG_DDIY') == 'online'
-        if self.is_online:
-            # 仅在正式环境启用异常记录，应尽可能在开发爬虫时处理完异常情况
+        self.save_and_send_exception = self.settings.getbool('SAVE_AND_SEND_EXCEPTION')
+        self.send_msg_method = self.settings.get('SEND_MSG_METHOD')
+        if self.save_and_send_exception:
             self.mongo_cli_exec = pymongo.MongoClient(self.settings.get('MONGO_URI_EXCEPTION'),
                                                       **self.settings.getdict('MONGO_PARAMS_EXCEPTION'))
             self.mongo_coll_exec = self.mongo_cli_exec[self.settings.get('MONGO_DATABASE_EXCEPTION')][
@@ -80,7 +85,7 @@ class DdiyBaseSpider(Spider):
                 self.mongo_coll_exec.create_index([(index_name, self.settings.get('MONGO_INDEX_ASC'))],
                                                   expireAfterSeconds=self.settings.getint('EXCEPTION_EXPIRE',
                                                                                           15) * 24 * 60 * 60)
-        else:
+        if self.is_online:
             # 防止开发爬虫时污染线上数据
             self.logger.info('Non-online environment! Set the database table name to "scrapy_ddiy_test"')
             self.table_name_ddiy = 'scrapy_ddiy_test'
@@ -100,7 +105,7 @@ class DdiyBaseSpider(Spider):
         spider = super().from_crawler(crawler, *args, **kwargs)
         spider.base_init(*args, **kwargs)
         spider.custom_init(*args, **kwargs)
-        if spider.is_online:
+        if spider.save_and_send_exception:
             assert spider.mongo_cli_exec.server_info(), 'MongoDB for logging exceptions  failed to establish a ' \
                                                         'connection, please check the settings '
         assert spider.redis_cli.ping(), 'Redis failed to establish a connection, please check the settings'
@@ -125,36 +130,67 @@ class DdiyBaseSpider(Spider):
         parsed_item['crawl_time'] = datetime.now()
         return self._adjust_item(parsed_item)
 
-    def send_ding_bot_msg(self, warn_msg: str):
-        time_format = '%Y-%m-%d %H:%M:%S'
-        start_time = self.crawler.stats.get_stats()['start_time'].strftime(time_format)
-        warn_time = datetime.now().strftime(time_format)
-        msg_dict = {'start_time': start_time, 'warn_time': warn_time,
-                    'spider_name': f'[{self.name}] {self.description}', 'warn_msg': warn_msg,
-                    'server_ip': self._local_ip, 'pid': os.getpid()}
+    def send_ding_bot_msg(self, warn_type, start_time, warn_time, spider_name, server_ip, pid,
+                          exception_id=None, warn_msg: str = None, up_kwargs: bool = False, **kwargs):
+        msg_dict = {'spider_name': spider_name, 'warn_type': warn_type, 'start_time': start_time,
+                    'warn_time': warn_time, 'server_ip': server_ip, 'pid': pid}
+        if exception_id:
+            msg_dict['exception_id'] = exception_id
+        if warn_msg:
+            msg_dict['warn_msg'] = warn_msg
+        if up_kwargs:
+            msg_dict.update(**kwargs)
         self.crawler.stats.inc_value('warn_msg_count/ding_bot')
         self.redis_cli.rpush(self.settings.get('WARN_MESSAGES_LIST'), json.dumps(msg_dict, ensure_ascii=False))
 
-    def send_mail(self, warn_type: str, warn_msg: str or dict):
+    def send_mail(self, warn_type: str, spider_name, warn_msg: str or dict, **kwargs):
         if not getattr(self, '_init_mailer', False):
-            raise UserWarning("Can't use 'send_mail' when 'ENABLE_MAIL' is not True")
-        mail_subject = f'Spider-Warning:  {warn_type}'
+            raise UserWarning("Can't use 'send_mail' when 'SAVE_AND_SEND_EXCEPTION' is not True")
+        mail_subject = f'Spider-Warning: [{warn_type}] {spider_name}'
         if isinstance(warn_msg, dict):
-            mail_body = '\n'.join(
-                [f'<tr><td><font size="4">{k}</font></td><td><font size="4">{v}</font></td></tr>'.replace('\n', '<br>')
-                 for k, v in warn_msg.items()])
-            mail_body = '<table border="1">' + mail_body + '</table>'
-            mime_type = 'text/html'
+            kwargs = warn_msg
         elif isinstance(warn_msg, str):
-            mail_body = warn_msg
-            mime_type = 'text/plain'
+            kwargs['warn_msg'] = warn_msg
         else:
             raise AttributeError("'warn_msg' must be str or dict")
+        mail_body = '\n'.join(
+            [f'<tr><td><font size="4">{k}</font></td><td><font size="4">{v}</font></td></tr>'.replace('\n', '<br>')
+             for k, v in kwargs.items()])
+        mail_body = '<table border="1">' + mail_body + '</table>'
+        mime_type = 'text/html'
         self.mail_sender.send(to=self.mail_to, subject=mail_subject, body=mail_body, cc=self.mail_cc,
                               mimetype=mime_type)
 
+    def send_msg(self, method: str, server_ip: str = None, **kwargs):
+        """
+        爬虫发送提醒消息的方法
+        :param method: 发送方法，目前支持
+                       {
+                       'mail':邮件,
+                       'dingding':钉钉
+                       }
+        :param server_ip: 服务器 ip
+        :param kwargs:
+        :return:
+        """
+        time_format = '%Y-%m-%d %H:%M:%S'
+        start_time = self.crawler.stats.get_stats()['start_time'].strftime(time_format)
+        warn_time = datetime.now().strftime(time_format)
+        spider_name = f'[{self.name}] {self.description}'
+        server_ip = server_ip or self._local_ip
+        params_dict = {'start_time': start_time, 'warn_time': warn_time, 'spider_name': spider_name,
+                       'server_ip': server_ip, 'pid': os.getpid()}
+        params_dict.update(**kwargs)
+        method = method.lower()
+        if method == 'mail':
+            return self.send_mail(**params_dict)
+        elif method == 'dingding':
+            return self.send_ding_bot_msg(**params_dict)
+        else:
+            raise ValueError("'method' must be one of ['mail', 'dingding']")
+
     def closed(self, reason):
-        if self.is_online:
+        if self.save_and_send_exception:
             self.mongo_cli_exec.close()
         self.redis_cli.close()
 

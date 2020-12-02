@@ -29,28 +29,28 @@ class CatchParseErrorMiddleware(object):
         headers_info = response.request.headers.to_string().decode()
         request_info = f'<[{response.status}-{response.request.method}] {response.request.url}  ' \
                        f'{response.request.body}>\n\nRequest Headers ↓↓↓\n{headers_info}'
-        exec_info = traceback.format_exc()
+        exec_info = traceback.format_exc() if spider.send_msg_method != 'dingding' else None
 
-        # 使用 '服务器ip+进程号+爬虫启动时间+异常详情' 计算异常MD5
-        exception_md5 = get_str_md5(f'{spider._local_ip}{self.pid}{self.start_time}{exec_info}')
-        exception_info = {'_id': exception_md5, 'server_ip': spider._local_ip,
-                          'pid': self.pid, 'callback_name': callback_name, 'exec_info': exec_info,
-                          'request_info': request_info, 'warn_time': datetime.now()}
-        if spider.is_online:
-            exception_info_mongo = deepcopy(exception_info)
-            spider.send_mail('Parse Error', exception_info)
-            exception_info_mongo['response_info'] = response.text
+        if spider.save_and_send_exception:
+            # 使用 '服务器ip+进程号+爬虫启动时间+异常详情' 计算异常 MD5
+            exception_md5 = get_str_md5(f'{spider._local_ip}{self.pid}{self.start_time}{exec_info}')
+            spider.crawler.stats.inc_value(f'parse_error_count/_id/{exception_md5}')
+            exception_info = {'_id': exception_md5, 'server_ip': spider._local_ip, 'pid': self.pid,
+                              'callback_name': callback_name, 'request_info': request_info,
+                              'warn_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'response': response.text}
             try:
-                spider.mongo_coll_exec.insert_one(exception_info_mongo)
-                spider.logger.warning(f'Parsed error id is {exception_md5}')
+                spider.mongo_coll_exec.insert_one(exception_info)
+                exception_info.pop('response')
+                exception_info['exception_id'] = exception_info.pop('_id')
+                # 重复异常不发送提醒消息
+                spider.send_msg(method=spider.send_msg_method, warn_msg=exec_info, warn_type='Parse Error',
+                                **exception_info)
             except DuplicateKeyError:
                 # 不插入重复异常
                 pass
-            except Exception as e:
-                spider.send_ding_bot_msg(repr(e))
         spider.crawler.stats.inc_value('parse_error_count')
         spider.crawler.stats.inc_value(f'parse_error_count/response_status_{response.status}')
-        if not spider.is_online and self.close_spider_when_parsed_error:
+        if self.close_spider_when_parsed_error:
             spider.crawler.engine.close_spider(spider, 'Parsed error when spider running in not online environment')
 
     def spider_opened(self, spider):

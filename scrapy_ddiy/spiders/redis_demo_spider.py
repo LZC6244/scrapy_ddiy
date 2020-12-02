@@ -9,7 +9,7 @@ scrapy_ddiy 示例爬虫
 
 class DemoSpider(DdiyRedisSpider):
     name = 'redis_demo_spider'
-    description = 'scrapy_ddiy - 示例爬虫'
+    description = 'scrapy_ddiy -  Redis示例爬虫'
     start_urls = ['https://www.baidu.com/']
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
