@@ -34,7 +34,7 @@ def ding_talk_bot_notify(msg_interval=5):
     while msg_s:
         msg = json.loads(msg_s)
         warn_msg = msg.get('warn_msg', '')
-        title = f'{warn_msg[:5]}...' if len(warn_msg) > 5 else warn_msg
+        title = f'{warn_msg[:15]}...' if len(warn_msg) > 15 else warn_msg
         warn_msg = '\n'.join([f'#### {k}\n> {v}' for k, v in msg.items()])
         try:
             ding_talk_bot.send_markdown(title=title, text=warn_msg)

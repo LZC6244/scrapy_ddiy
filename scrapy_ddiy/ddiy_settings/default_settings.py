@@ -122,3 +122,10 @@ MAIL_CC = None
 # DUPEFILTER_CLASS = 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter'
 # REDIS_BLOOM_ERROR_RATE = 0.0000001
 # REDIS_BLOOM_CAPACITY = 10000000
+
+# 是否保存异常到 MongoDB 且发送邮件
+SAVE_AND_SEND_EXCEPTION = False
+# 发送提醒消息的方式，目前默认为钉钉
+# 因为邮件使用的是 scrapy 自带的邮件发送方式
+# 而邮件目前在发送邮件成功后会抛出异常，scrapy 已将其标为 bug
+SEND_MSG_METHOD = 'dingding'
