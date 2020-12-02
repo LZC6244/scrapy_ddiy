@@ -57,6 +57,9 @@ class MongodbPipeline(object):
         except BulkWriteError as e:
             # 插入重复数据（_id）时会报此错误
             pass
+        except Exception as e:
+            # TODO: 重试插入x次后跳过该批数据，或者单条插入，出错时发送错误提醒邮件
+            pass
 
         spider.logger.info(f'Bulk insert {len(data_li)} items successfully')
         self.data_li.clear()
