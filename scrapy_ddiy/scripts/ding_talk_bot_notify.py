@@ -4,6 +4,7 @@ import sys
 import json
 from time import sleep
 from DingTalkBot.bot import DingTalkBot
+from redis.connection import ConnectionError
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from scrapy_ddiy.utils.common import get_redis_conn
@@ -38,6 +39,9 @@ def ding_talk_bot_notify(msg_interval=5):
         warn_msg = '\n'.join([f'#### {k}\n> {v}' for k, v in msg.items()])
         try:
             ding_talk_bot.send_markdown(title=title, text=warn_msg)
+        except ConnectionError:
+            # 防止 Redis 连接失败
+            continue
         except Exception as e:
             redis_conn.rpush(failed_msg_name, msg_s)
             repr(e)
