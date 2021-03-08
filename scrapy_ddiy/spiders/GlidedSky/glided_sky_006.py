@@ -5,7 +5,7 @@ from scrapy import Request
 from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
 
 
-class GlidedSky005Spider(DdiyBaseSpider):
+class GlidedSky006Spider(DdiyBaseSpider):
     name = 'glided_sky_006'
     description = 'GlidedSky  雪碧图1'
     custom_settings = {
