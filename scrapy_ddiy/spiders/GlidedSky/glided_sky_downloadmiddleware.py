@@ -13,6 +13,7 @@ from twisted.internet.error import (
     TCPTimedOutError,
     TimeoutError,
 )
+from scrapy.exceptions import IgnoreRequest
 from twisted.web.client import ResponseFailed
 from scrapy.core.downloader.handlers.http11 import TunnelError
 
@@ -94,6 +95,7 @@ class GlidedSkyMiddleware(object):
         """
         if '/login' in response.url or '/login' in response.xpath('//title/text()').get(''):
             spider.crawler.engine.close_spider(spider, 'cookie invalid')
+            raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
