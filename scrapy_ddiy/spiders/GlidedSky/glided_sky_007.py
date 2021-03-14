@@ -34,9 +34,7 @@ class GlidedSky007Spider(DdiyBaseSpider):
             num_map[num_class][k] = v
         # 保存当前页面的数字组合的列表
         num_li = []
-        aa = 0
         for div_num_col in response.xpath('//div[@class="col-md-1"]'):
-            aa += 1
             num_class_li = [(i.xpath('./@class').get(), i.xpath('./text()').get()) for i in div_num_col.xpath('./div')]
             index = 0
             tmp_num_li = [None] * len(num_class_li)
