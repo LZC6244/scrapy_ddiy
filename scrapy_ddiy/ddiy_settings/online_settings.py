@@ -13,6 +13,7 @@ REDIS_PARAMS = {
     'password': env.get('REDIS_PASSWORD', None),
     'db': 11,
 }
+SCHEDULER_PERSIST = True
 
 # MongoDB 配置
 MONGO_URI = env.get('MONGO_URI', '127.0.0.1:27017')

@@ -6,7 +6,7 @@ from time import sleep
 from DingTalkBot.bot import DingTalkBot
 from redis.connection import ConnectionError
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from scrapy_ddiy.utils.common import get_redis_conn
 from scrapy_ddiy.utils.project import get_project_settings
 
