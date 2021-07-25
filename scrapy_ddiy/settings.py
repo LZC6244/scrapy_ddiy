@@ -89,6 +89,6 @@ COOKIES_ENABLED = False
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 LOG_LEVEL = 'INFO'
-# MONGO_DATABASE = 'scrapy_ddiy_test'
-Exceptions_Mail_ENABLED = True
 SCHEDULER_PERSIST = False
+
+RETRY_TIMES = 3

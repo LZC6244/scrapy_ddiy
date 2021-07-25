@@ -130,5 +130,8 @@ dmypy.json
 
 .idea
 spider_logs
+_tasks
 _scripts
 .vscode
+scrapy_ddiy/spiders/_spiders/*
+!scrapy_ddiy/spiders/_spiders/__init__.py

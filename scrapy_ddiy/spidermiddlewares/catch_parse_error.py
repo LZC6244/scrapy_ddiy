@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+import pickle
 import traceback
-from copy import deepcopy
 from scrapy import signals
 from datetime import datetime
-from pymongo.errors import DuplicateKeyError
-from scrapy_ddiy.utils.common import get_str_md5
+from twisted.internet import task
+from scrapy.utils.reqser import request_to_dict
 
 """
 捕获爬虫解析异常中间件
@@ -15,7 +15,10 @@ from scrapy_ddiy.utils.common import get_str_md5
 class CatchParseErrorMiddleware(object):
     close_spider_when_parsed_error: bool
     start_time: str
-    pid: str
+    warn_time: datetime = None
+    check_exception_task = None
+    exception_info: dict = None
+    time_fmt = '%Y-%m-%d %H:%M:%S'
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -25,35 +28,53 @@ class CatchParseErrorMiddleware(object):
         return s
 
     def process_spider_exception(self, response, exception, spider):
-        callback_name = getattr(response.request.callback, '__name__', 'parse')
-        headers_info = response.request.headers.to_string().decode()
-        request_info = f'<[{response.status}-{response.request.method}] {response.request.url}  ' \
-                       f'{response.request.body}>\n\nRequest Headers ↓↓↓\n{headers_info}'
-        exec_info = traceback.format_exc() if spider.send_msg_method != 'dingding' else None
-
-        if spider.save_and_send_exception:
-            # 使用 '服务器ip+进程号+爬虫启动时间+异常详情' 计算异常 MD5
-            exception_md5 = get_str_md5(f'{spider._local_ip}{self.pid}{self.start_time}{exec_info}')
-            spider.crawler.stats.inc_value(f'parse_error_count/_id/{exception_md5}')
-            exception_info = {'_id': exception_md5, 'server_ip': spider._local_ip, 'pid': self.pid,
-                              'callback_name': callback_name, 'request_info': request_info,
-                              'warn_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'response': response.text}
-            try:
-                spider.mongo_coll_exec.insert_one(exception_info)
-                exception_info.pop('response')
-                exception_info['exception_id'] = exception_info.pop('_id')
-                # 重复异常不发送提醒消息
-                spider.send_msg(method=spider.send_msg_method, warn_msg=exec_info, warn_type='Parse Error',
-                                **exception_info)
-            except DuplicateKeyError:
-                # 不插入重复异常
-                pass
         spider.crawler.stats.inc_value('parse_error_count')
         spider.crawler.stats.inc_value(f'parse_error_count/response_status_{response.status}')
         if self.close_spider_when_parsed_error:
-            spider.crawler.engine.close_spider(spider, 'Parsed error when spider running in not online environment')
+            spider.crawler.engine.close_spider(spider, 'parse_error')
+
+        if not spider.is_online:
+            return
+        warn_time = datetime.now()
+        callback_name = getattr(response.request.callback, '__name__', 'parse')
+        request = pickle.dumps(request_to_dict(response.request, spider))
+        exec_info = traceback.format_exc()
+
+        exception_info = {'spider_name': spider.name, 'start_time': self.start_time, 'server_ip': spider.local_ip,
+                          'pid': spider.pid, 'warn_reason': 'parse_error', 'callback_name': callback_name,
+                          'request': request, 'response': response.body, 'exec_info': exec_info,
+                          'warn_time': warn_time.strftime(self.time_fmt)}
+        spider.mongo_coll_exception.insert_one(exception_info)
+
+        headers_info = response.request.headers.to_string().decode()
+        request_info = f'<[{response.status}-{response.request.method}] {response.request.url}  ' \
+                       f'{response.request.body}>\n\nRequest Headers ↓↓↓\n{headers_info}'
+        exception_info.pop('response')
+        exception_info.pop('request')
+        exception_info['request_info'] = request_info
+        exception_info['parse_error_count'] = spider.crawler.stats.get_value('parse_error_count')
+        self.exception_info = exception_info
+        self.send_msg(spider=spider)
 
     def spider_opened(self, spider):
-        self.start_time = str(spider.crawler.stats.get_value('start_time'))
-        self.pid = str(os.getpid())
+        self.warn_time = spider.crawler.stats.get_value('start_time')
+        self.start_time = spider.crawler.stats.get_value('start_time').strftime(self.time_fmt)
+
         self.close_spider_when_parsed_error = spider.settings.getbool('CLOSE_SPIDER_WHEN_PARSED_ERROR')
+        if spider.is_online:
+            self.check_exception_task = task.LoopingCall(self.send_msg, spider=spider)
+            self.check_exception_task.start(interval=3600)
+
+    def close_spider(self, spider):
+        if spider.is_online:
+            if self.check_exception_task and self.check_exception_task.running:
+                self.check_exception_task.stop()
+
+    def send_msg(self, spider):
+        now = datetime.now()
+        if not self.exception_info or now.hour < 8 or now.hour >= 21 or (now - self.warn_time).total_seconds() < 1800:
+            return
+        self.warn_time = now
+        mail_subject = f'Spider-Warning: [parse_error] {spider.name}'
+        spider.send_mail(mail_subject=mail_subject, warn_msg=self.exception_info)
+        self.exception_info = dict()
