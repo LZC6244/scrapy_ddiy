@@ -8,7 +8,7 @@ from scrapy.exceptions import DontCloseSpider
 from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
 
 """
-scrapy_ddiy redis爬虫
+scrapy_ddiy redis spider
 """
 
 
@@ -32,7 +32,8 @@ class DdiyRedisSpider(DdiyBaseSpider, RedisSpider):
         """重写 RedisSpider spider_idle 方法，解决空跑（无限等待种子）"""
         self.schedule_next_requests()
         if self._idle_times >= self._idle_times_max:
-            self.closed(reason=f'Close spider after not got seed from redis queue {self._idle_times_max} times.')
+            reason = f'Close spider after not got seed from redis queue {self._idle_times_max} times.'
+            self.crawler.spider.logger.info(reason)
         else:
             raise DontCloseSpider
 

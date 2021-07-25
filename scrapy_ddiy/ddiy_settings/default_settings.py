@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
-import pymongo
+import os
 
 """
 default_settings for scrapy_ddiy
 """
 
+env = os.environ
 DOWNLOADER_MIDDLEWARES = {
     # UserAgentMiddleware 默认优先级：500
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    # RetryMiddleware 默认优先级：550
+    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
     'scrapy_ddiy.downloadermiddlewares.custom_user_agent.CustomUserAgentMiddleware': 501,
     'scrapy_ddiy.downloadermiddlewares.log_crawl.LogCrawlMiddleware': 510,
+    'scrapy_ddiy.downloadermiddlewares.retry.RetryMiddleware': 550,
+    # CheckMiddleware 须大于等于 551
+    'scrapy_ddiy.downloadermiddlewares.check.CheckMiddleware': 551,
 }
 
 SPIDER_MIDDLEWARES = {
@@ -42,13 +48,13 @@ MAKE_LOG_FILE = True
 RANDOM_UA = True
 
 # Redis 配置
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = 6379
+REDIS_HOST = env.get('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = int(env.get('REDIS_PORT', 6379))
 # redis.Redis 所需参数
 # decode_responses 参数用于配置Redis连接是否自动解码，不可设置为 True
 # scrapy_redis 使用的是非解码，故不能使用解码（默认为非解码，此处只是显示写出）
 REDIS_PARAMS = {
-    'password': None,
+    'password': env.get('REDIS_PASSWORD', None),
     'db': 10,
     # decode_responses 参数用于配置 Redis 连接是否自动解码，不可设置为 True
     # scrapy_redis 使用的是非解码，故不能使用解码（默认为非解码）
@@ -59,27 +65,26 @@ SCHEDULER_PERSIST = False
 
 # MongoDB 配置
 # 存放数据的 MongoDB
-MONGO_URI = '127.0.0.1:27017'
+MONGO_URI = env.get('MONGO_URI', '127.0.0.1:27017')
 # MongoDB 默认存入的数据库库名
 MONGO_DATABASE = 'scrapy_ddiy_test'
 # pymongo.MongoClient 所需参数
 MONGO_PARAMS = {
-    'username': None,
-    'password': None,
-    'authSource': 'admin',
+    'username': env.get('MONGO_USERNAME', None),
+    'password': env.get('MONGO_PASSWORD', None),
+    'authSource': env.get('MONGO_AUTH', 'admin'),
 }
-MONGO_INDEX_ASC = pymongo.ASCENDING
-MONGO_INDEX_DESC = pymongo.DESCENDING
-# 为数据库创建索引，如：{'index_1':MONGO_INDEX_ASC,'index_2':MONGO_INDEX_DESC,...}
+# 为数据库创建索引，如：{'index_1':pymongo.ASCENDING,'index_2':pymongo.DESCENDING,...}
 MONGO_INDEX_DICT = {}
 # 存放爬虫异常信息的 MongoDB
-MONGO_URI_EXCEPTION = '127.0.0.1:27017'
-MONGO_DATABASE_EXCEPTION = 'scrapy_ddiy_exception'
+MONGO_URI_STATS = env.get('MONGO_URI_STATS', '127.0.0.1:27017')
+MONGO_DATABASE_STATS = 'scrapy_ddiy_stats'
+MONGO_COLLECTION_STATS = 'scrapy_ddiy_stats'
 MONGO_COLLECTION_EXCEPTION = 'scrapy_ddiy_exception'
-MONGO_PARAMS_EXCEPTION = {
-    'username': None,
-    'password': None,
-    'authSource': 'admin',
+MONGO_PARAMS_STATS = {
+    'username': env.get('MONGO_USERNAME_STATS', None),
+    'password': env.get('MONGO_PASSWORD_STATS', None),
+    'authSource': env.get('MONGO_AUTH_STATS', 'admin'),
 }
 
 # 批量保存入库的 item 数
@@ -93,39 +98,31 @@ LOG_CRAWLING = True
 # 记录开始解析响应
 LOG_PARSING = True
 
-# 钉钉机器人联系人 hash 名，保存用户名（如maida）和手机号（用于@某人）如：{'name':'phone_number',...}
+# TODO: 钉钉机器人联系人 hash 名，保存用户名（如maida）和手机号（用于@某人）如：{'name':'phone_number',...}
 # 此为进阶功能，可不配置
 DING_TALK_BOT_CONTACTS = 'DingTalkBot:contacts'
-# scrapy_ddiy 告警消息（预警/通知/自定义）的 list 名，如：[]
-WARN_MESSAGES_LIST = 'scrapy_ddiy:warn_messages'
-WARN_MESSAGES_LIST_FAILED = 'scrapy_ddiy:warn_messages_failed'
 
-# 测试环境中出现解析异常是否关闭爬虫
+# 出现解析异常是否关闭爬虫
 CLOSE_SPIDER_WHEN_PARSED_ERROR = True
 
-# ENABLE_MAIL = True
 # 邮箱配置
-MAIL_HOST = 'localhost'
-MAIL_PORT = 25
-MAIL_FROM = 'scrapy@localhost'
-MAIL_PASS = None
+MAIL_HOST = env.get('MAIL_HOST_DDIY', 'localhost')
+MAIL_PORT = env.get('MAIL_PORT_DDIY', 25)
+MAIL_FROM = env.get('MAIL_FROM_DDIY', 'scrapy@localhost')
+MAIL_PASS = env.get('MAIL_PASS_DDIY')
 # 用户 SMTP 验证，如：'xx@xx.com'
-MAIL_USER = None
+MAIL_USER = env.get('MAIL_USER_DDIY', 'scrapy@localhost')
 MAIL_SSL = True
 # 收信人列表 ['xx@xx.com',...]
-MAIL_TO = None
+MAIL_TO = env.get('MAIL_TO_DDIY', 'scrapy@localhost')
 # 抄送人列表 ['xx@xx.com',...]
 MAIL_CC = None
 
 # RedisBloomDupeFilter only for for redis-spider
 # SCHEDULER = 'scrapy_ddiy.utils.scheduler.SchedulerDdiy'
 # DUPEFILTER_CLASS = 'scrapy_ddiy.utils.dupefilter.RedisBloomDupeFilter'
-# REDIS_BLOOM_ERROR_RATE = 0.0000001
-# REDIS_BLOOM_CAPACITY = 10000000
+# REDIS_BLOOM_ERROR_RATE = 0.001
+# REDIS_BLOOM_CAPACITY = 100000
 
-# 是否保存异常到 MongoDB 且发送邮件
-SAVE_AND_SEND_EXCEPTION = False
-# 发送提醒消息的方式，目前默认为钉钉
-# 因为邮件使用的是 scrapy 自带的邮件发送方式
-# 而邮件目前在发送邮件成功后会抛出异常，scrapy 已将其标为 bug
-SEND_MSG_METHOD = 'dingding'
+# 自定义重试异常响应状态码
+CUSTOM_RETRY_HTTP_CODE = 6001

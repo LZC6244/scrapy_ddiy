@@ -70,3 +70,4 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 - 非线上环境时（环境变量 'ENV_FLAG_DDIY' != 'online'），为了防止污染线上数据，会将数据库库名统一置为 `scrapy_ddiy_test`
 - 使用 `-a` 传递参数时请注意该参数名是否会影响爬虫本身逻辑，Scrapy 原生会将传递的参数置为爬虫的属性
 - MongoDB 管道目前仅支持单字段索引，若要创建复合索引或进行其他复杂操作，请自行在 spider.custom_init 方法中执行
+- 邮件预警时使用的是 scrapy 自带的邮件发送，会抛出异常，不过没什么影响，详见 scrapy 官方 [issue](https://github.com/scrapy/scrapy/issues/3478)
