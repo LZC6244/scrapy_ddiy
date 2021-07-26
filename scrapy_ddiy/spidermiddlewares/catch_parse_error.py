@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 import pickle
 import traceback
 from scrapy import signals
@@ -15,8 +14,7 @@ from scrapy.utils.reqser import request_to_dict
 class CatchParseErrorMiddleware(object):
     close_spider_when_parsed_error: bool
     start_time: str
-    warn_time: datetime = None
-    check_exception_task = None
+    check_exception_task: task.LoopingCall
     exception_info: dict = None
     time_fmt = '%Y-%m-%d %H:%M:%S'
 
@@ -30,11 +28,7 @@ class CatchParseErrorMiddleware(object):
     def process_spider_exception(self, response, exception, spider):
         spider.crawler.stats.inc_value('parse_error_count')
         spider.crawler.stats.inc_value(f'parse_error_count/response_status_{response.status}')
-        if self.close_spider_when_parsed_error:
-            spider.crawler.engine.close_spider(spider, 'parse_error')
 
-        if not spider.is_online:
-            return
         warn_time = datetime.now()
         callback_name = getattr(response.request.callback, '__name__', 'parse')
         request = pickle.dumps(request_to_dict(response.request, spider))
@@ -52,29 +46,35 @@ class CatchParseErrorMiddleware(object):
         exception_info.pop('response')
         exception_info.pop('request')
         exception_info['request_info'] = request_info
-        exception_info['parse_error_count'] = spider.crawler.stats.get_value('parse_error_count')
+        parse_error_count = spider.crawler.stats.get_value('parse_error_count')
+        exception_info['parse_error_count'] = parse_error_count
         self.exception_info = exception_info
-        self.send_msg(spider=spider)
+        if parse_error_count == 1:
+            self.send_msg(spider=spider, cron=False)
+
+        if self.close_spider_when_parsed_error:
+            spider.crawler.engine.close_spider(spider, 'close_spider_when_parsed_error')
 
     def spider_opened(self, spider):
-        self.warn_time = spider.crawler.stats.get_value('start_time')
         self.start_time = spider.crawler.stats.get_value('start_time').strftime(self.time_fmt)
 
         self.close_spider_when_parsed_error = spider.settings.getbool('CLOSE_SPIDER_WHEN_PARSED_ERROR')
         if spider.is_online:
             self.check_exception_task = task.LoopingCall(self.send_msg, spider=spider)
-            self.check_exception_task.start(interval=3600)
+            self.check_exception_task.start(interval=1800)
 
     def close_spider(self, spider):
         if spider.is_online:
-            if self.check_exception_task and self.check_exception_task.running:
+            if self.check_exception_task.running:
                 self.check_exception_task.stop()
+        self.send_msg(spider=spider, cron=False)
 
-    def send_msg(self, spider):
+    def send_msg(self, spider, cron: bool = True):
         now = datetime.now()
-        if not self.exception_info or now.hour < 8 or now.hour >= 21 or (now - self.warn_time).total_seconds() < 1800:
+        if not self.exception_info:
             return
-        self.warn_time = now
+        if cron and (now.hour < 8 or now.hour >= 21):
+            return
         mail_subject = f'Spider-Warning: [parse_error] {spider.name}'
         spider.send_mail(mail_subject=mail_subject, warn_msg=self.exception_info)
         self.exception_info = dict()
