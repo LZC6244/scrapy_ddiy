@@ -70,14 +70,10 @@ class DdiyBaseSpider(Spider):
             self.settings.get('MONGO_COLLECTION_STATS')]
         self.mongo_coll_exception = self.mongo_cli[self.settings.get('MONGO_DATABASE_STATS')][
             self.settings.get('MONGO_COLLECTION_EXCEPTION')]
-        self.mongo_coll_stats.create_index([('warn_time', pymongo.ASCENDING)],
-                                           expireAfterSeconds=self.settings.getint('EXCEPTION_EXPIRE',
-                                                                                   90) * 24 * 60 * 60)
+        self.mongo_coll_exception.create_index([('warn_time', pymongo.ASCENDING)],
+                                               expireAfterSeconds=self.settings.getint('EXCEPTION_EXPIRE',
+                                                                                       90) * 24 * 60 * 60)
         self.pid = os.getpid()
-        if self.is_online:
-            # 防止开发爬虫时污染线上数据
-            self.logger.info('Non-online environment! Set the database table name to "scrapy_ddiy_test"')
-            self.table_name_ddiy = 'scrapy_ddiy_test'
 
         self.mail_to = self.settings.getlist('MAIL_TO')
         assert self.mail_to, "Please set the 'MAIL_TO' for the spider"

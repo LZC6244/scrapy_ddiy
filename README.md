@@ -37,15 +37,16 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 
 ## 功能概览
 - [x] 当请求无 User-Agent 时，为其设置随机 User-Agent
+- [x] 解析异常预警
+- [x] 保存数据异常预警
+- [x] 下载中间件定义检查响应规则进行重试
 - [x] 日志文件轮询机制
   - 默认启用轮询`(settings => LOG_TIME_ROTATING)`
   - 启用轮询时默认每天`(00:00)`轮询一次日志文件，默认保留近三天轮询日志
 - [x] 启用日志时可以决定是否保留输出到控制台，默认保留输出`(settings => LOG_TO_CONSOLE)`
 - [x] 自动创建 `Item` ，使用 MongoDB 时不必每次定义 item ，直接 yield 解析好的 item 即可 (spider.process_parsed_item)
 - [x] 默认禁用 **Telnet Console**
-- [x] 异常邮件预警，钉钉自定义消息预警
-- [x] **spidermiddlewares** 处理解析异常，异常保存到 **MongoDB** ...
-- [ ] **downloanmiddlewares** 处理请求、响应异常（譬如重试？）
+- [x] 邮件预警，钉钉自定义消息预警
 - [x] 记录爬取状态的下载中间件，设置默认 `errback`
 - [x] MongoDB 管道自动创建索引`(settings => MONGO_INDEX_DICT)`
 - [x] 去重队列可选择布隆过滤器  [如何使用？](https://github.com/LZC6244/scrapy_ddiy/wiki/%E5%8E%BB%E9%87%8D%E9%98%9F%E5%88%97%E4%BD%BF%E7%94%A8Redis%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8)
@@ -59,7 +60,6 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 ## TODO
 - [ ] 使用 **ORM** 添加处理 sql 数据库的管道
 - [ ] 框架层面处理 Redis 爬虫中需要去重但是重试指定次数后仍失败的请求，将其从去重队列删除
-- [x] 爬虫提供发送告警信息方法 (spider.send_ding_bot_msg)
 - [ ] 钉钉发送预警消息时接入 `@` 某（些）人功能
 
 ## 注意事项
@@ -71,3 +71,4 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 - 使用 `-a` 传递参数时请注意该参数名是否会影响爬虫本身逻辑，Scrapy 原生会将传递的参数置为爬虫的属性
 - MongoDB 管道目前仅支持单字段索引，若要创建复合索引或进行其他复杂操作，请自行在 spider.custom_init 方法中执行
 - 邮件预警时使用的是 scrapy 自带的邮件发送，会抛出异常，不过没什么影响，详见 scrapy 官方 [issue](https://github.com/scrapy/scrapy/issues/3478)
+- MongoDB 中异常信息默认 90 天过期，将会自动删除
