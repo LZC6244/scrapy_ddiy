@@ -4,6 +4,7 @@ Scrapy
 pymongo
 itemadapter
 redis
+hiredis
 scrapy_redis
 six
 Twisted
