@@ -6,7 +6,7 @@ from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
 
 class GlidedSky003Spider(DdiyBaseSpider):
     name = 'glided_sky_003'
-    description = 'GlidedSky  爬虫-IP屏蔽1'
+    description = 'GlidedSky 爬虫-IP屏蔽1'
     start_url = 'http://www.glidedsky.com/level/web/crawler-ip-block-1'
     first_page = True
     num_count = 0

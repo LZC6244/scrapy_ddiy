@@ -4,6 +4,8 @@ import redis
 import socket
 import hashlib
 import pymongo
+import requests
+from time import sleep
 from scrapy import Request
 from w3lib.url import canonicalize_url
 from scrapy.utils.python import to_bytes
@@ -89,3 +91,29 @@ def run_func(argv, local_var):
         return func(**params)
     else:
         print(warn_msg)
+
+
+def wx_pusher(redis_conn, wx_pusher_token, summary, content, wx_pusher_uid):
+    url = 'http://wxpusher.zjiecode.com/api/send/message'
+    form_data = {
+        'appToken': wx_pusher_token,
+        'content': content,
+        'summary': summary,
+        'contentType': 1,
+        'topicIds': None,
+        'uids': wx_pusher_uid,
+        'url': None
+    }
+
+    wx_pusher_normal = False
+    for _ in range(3):
+        try:
+            r = requests.post(url=url, json=form_data, headers={'Content-Type': 'application/json'}, timeout=30)
+            # print(r.text)
+            wx_pusher_normal = True
+            break
+        except Exception as e:
+            # 防止 wx_pusher 服务出现故障，提醒开发者检查
+            sleep(5)
+    if not wx_pusher_normal:
+        redis_conn.set('__wx_pusher:server_error', 'true')

@@ -94,7 +94,7 @@ class GlidedSkyMiddleware(object):
         process_response  逆序执行
         """
         if '/login' in response.url or '/login' in response.xpath('//title/text()').get(''):
-            spider.crawler.engine.close_spider(spider, 'cookie invalid')
+            spider.crawler.engine.close_spider(spider, 'cookie_invalid')
             raise IgnoreRequest
         return response
 

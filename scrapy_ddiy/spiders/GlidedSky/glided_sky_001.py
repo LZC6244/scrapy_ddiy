@@ -6,7 +6,7 @@ from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
 
 class GlidedSky001Spider(DdiyBaseSpider):
     name = 'glided_sky_001'
-    description = 'GlidedSky  爬虫-基础1'
+    description = 'GlidedSky 爬虫-基础1'
     start_url = 'http://www.glidedsky.com/level/web/crawler-basic-1'
     custom_settings = {
         'COOKIES_ENABLED': True,
