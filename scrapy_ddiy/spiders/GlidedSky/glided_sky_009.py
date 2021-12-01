@@ -10,7 +10,7 @@ from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
 
 class GlidedSky009Spider(DdiyBaseSpider):
     name = 'glided_sky_009'
-    description = 'GlidedSky  字体反爬2'
+    description = 'GlidedSky 字体反爬2'
     custom_settings = {
         'COOKIES_ENABLED': True,
         'CONCURRENT_REQUESTS': 1,
