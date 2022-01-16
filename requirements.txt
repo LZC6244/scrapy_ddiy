@@ -8,4 +8,5 @@ hiredis
 scrapy_redis
 six
 Twisted
-DingTalkBot
+MsgBot
+pycryptodome
