@@ -6,7 +6,7 @@ from scrapy import Spider
 from datetime import datetime
 from scrapy.mail import MailSender
 from scrapy.item import Item, Field
-from DingTalkBot.bot import DingTalkBot
+from MsgBot import DingTalkBot
 from scrapy.settings import Settings, BaseSettings
 
 from scrapy_ddiy.utils.common import get_request_md5, get_local_ip
