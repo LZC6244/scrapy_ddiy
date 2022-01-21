@@ -5,7 +5,7 @@ import json
 import subprocess
 from scrapy import Request
 from scrapy import Selector
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 # base64 图片 和 0-9 数字的映射
 B64_IMG_MAP_NUM = {

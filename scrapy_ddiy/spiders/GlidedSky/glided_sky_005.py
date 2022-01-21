@@ -4,7 +4,7 @@ import hashlib
 from time import sleep
 from scrapy import Request
 from datetime import datetime
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 class GlidedSky005Spider(DdiyBaseSpider):

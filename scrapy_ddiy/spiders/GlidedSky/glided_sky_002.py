@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from scrapy import Request
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 class GlidedSky002Spider(DdiyBaseSpider):

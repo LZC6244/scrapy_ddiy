@@ -2,7 +2,7 @@
 import re
 from scrapy import Request
 from collections import defaultdict
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 class GlidedSky007Spider(DdiyBaseSpider):

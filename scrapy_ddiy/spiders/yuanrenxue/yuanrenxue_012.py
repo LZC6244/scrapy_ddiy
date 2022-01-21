@@ -3,7 +3,7 @@ import json
 import base64
 from urllib import parse
 from scrapy import Request
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 class Yuanrenxue012(DdiyBaseSpider):

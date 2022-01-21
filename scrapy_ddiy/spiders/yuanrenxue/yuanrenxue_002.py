@@ -2,7 +2,7 @@
 import json
 import subprocess
 from scrapy import Request
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 def get_m():
