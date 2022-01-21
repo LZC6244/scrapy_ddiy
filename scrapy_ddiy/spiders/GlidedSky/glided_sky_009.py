@@ -5,7 +5,7 @@ import base64
 from io import BytesIO
 from scrapy import Request
 from fontTools.ttLib import TTFont
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 class GlidedSky009Spider(DdiyBaseSpider):

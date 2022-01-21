@@ -5,7 +5,7 @@ from inspect import isgenerator
 from scrapy_redis import defaults
 from scrapy_redis.spiders import RedisSpider
 from scrapy.exceptions import DontCloseSpider
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy.utils.spiders import DdiyBaseSpider
 
 """
 scrapy_ddiy redis spider

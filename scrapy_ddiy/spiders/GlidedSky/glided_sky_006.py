@@ -2,7 +2,7 @@
 import re
 import math
 from scrapy import Request
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 
 class GlidedSky006Spider(DdiyBaseSpider):
