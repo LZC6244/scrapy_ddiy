@@ -39,7 +39,7 @@ class MongodbPipeline(object):
             self.check_exception_task.start(interval=1800)
         else:
             # 防止开发爬虫时污染线上数据
-            self.mongo_db = 'scrapy_4_zkj_test'
+            self.mongo_db = 'scrapy_ddiy_test'
             spider.logger.info(f'Non-online environment! Set the mongodb database table name to "{self.mongo_db}"')
 
         mongo_coll = getattr(spider, 'table_name_ddiy', None) or spider.name
