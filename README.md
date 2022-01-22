@@ -54,6 +54,7 @@ Read the [Document](https://github.com/LZC6244/scrapy_ddiy/wiki)
 ## 爬虫列表
 - [GlidedSky 系列爬虫](https://github.com/LZC6244/scrapy_ddiy/wiki/GlidedSky-home)
 - [猿人学 刷题平台](https://github.com/LZC6244/scrapy_ddiy/wiki/Yuanrenxue-Home)
+- [携程机票爬虫](https://github.com/LZC6244/scrapy_ddiy/blob/master/scrapy_ddiy/spiders/ctrip/ctrip_air_ticket.py)  `js`
 - xxx
 - ...
 
