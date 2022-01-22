@@ -12,6 +12,7 @@ REDIS_PARAMS = {
     'password': env.get('REDIS_PASSWORD', None),
     'db': 11,
 }
+MONGO_DATABASE = 'scrapy_ddiy'
 SCHEDULER_PERSIST = True
 # 启用以下组件，方便发生解析异常等情况时重新灌入请求等
 SCHEDULER = 'scrapy_redis.scheduler.Scheduler'
