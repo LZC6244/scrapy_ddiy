@@ -61,7 +61,7 @@ class CtripAirTicket(DdiyBaseSpider):
                               "extension": [{"name": "protocal", "value": "https"}]},
                      "contentType": "json"}
         url = 'https://m.ctrip.com/restapi/soa2/13515/airportCityList'
-        yield FormRequest(url=url, body=json.dumps(form_data), method='POST', callback=self.parse)
+        yield FormRequest(url=url, body=json.dumps(form_data), method='POST', callback=self.parse, dont_filter=True)
 
     def parse(self, response, **kwargs):
         """获取城市名对应查询代码，并查询航班"""
@@ -79,7 +79,7 @@ class CtripAirTicket(DdiyBaseSpider):
               'head%5Bctok%5D=&head%5Bcver%5D=1.0&head%5Blang%5D=01&head%5Bsid%5D=8888&head%5Bsyscode%5D=09&' \
               'head%5Bauth%5D=null&head%5Bextension%5D%5B0%5D%5Bname%5D=protocal&' \
               'head%5Bextension%5D%5B0%5D%5Bvalue%5D=https&contentType=json'
-        yield Request(url=url, callback=self.parse_client_id)
+        yield Request(url=url, callback=self.parse_client_id, dont_filter=True)
 
     def parse_client_id(self, response):
         """
@@ -118,7 +118,7 @@ class CtripAirTicket(DdiyBaseSpider):
                 "contentType": "json"
             }
             yield FormRequest(url=url, body=json.dumps(form_data), method='POST', cookies=cookies,
-                              callback=self.parse_fright, meta={'low_price': low_price})
+                              callback=self.parse_fright, meta={'low_price': low_price}, dont_filter=True)
 
     def parse_fright(self, response):
         """解析航班"""
