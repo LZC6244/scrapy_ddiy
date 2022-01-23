@@ -62,6 +62,7 @@ class CtripAirTicket(DdiyBaseSpider):
                 self.logger.info(f'不爬取历史机票：{date}')
                 continue
             self.trip_li.append([origin, dest, date, low_price])
+        self.logger.info(f'self.trip_li is {self.trip_li}')
         if not self.trip_li:
             self.logger.info('无所需爬取机票，结束爬虫')
             return
