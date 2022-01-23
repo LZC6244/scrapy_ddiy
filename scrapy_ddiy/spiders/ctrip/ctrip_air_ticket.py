@@ -32,7 +32,7 @@ class CtripAirTicket(DdiyBaseSpider):
     notice_wx_com: str
     city_info = dict()
     time_fmt = '%Y-%m-%d %H:%M:%S'
-    # 晚于 xx 点后航班无视
+    # 晚于 xx 点后航班不进行预警
     before_hour: int = 21
 
     def custom_init(self, *args, **kwargs):
@@ -53,9 +53,20 @@ class CtripAirTicket(DdiyBaseSpider):
             trip_li = ast.literal_eval(trip_li)
 
         self.logger.info(f'trip_li is {trip_li}')
-        self.trip_li = trip_li
+        time_fmt = '%Y-%m-%d'
+        now = datetime.now()
+        self.trip_li = list()
+        for origin, dest, date, low_price in trip_li:
+            date = datetime.strptime(date, time_fmt)
+            if now >= date:
+                self.logger.info(f'不爬取历史机票：{date}')
+                continue
+            self.trip_li.append([origin, dest, date, low_price])
+        if not self.trip_li:
+            self.logger.info('无所需爬取机票，结束爬虫')
+            return
 
-        # 获取城市
+            # 获取城市
         form_data = {"q": '1', "b": '3',
                      "head": {"ctok": "", "cver": "1.0", "lang": "01", "syscode": "09", "auth": None,
                               "extension": [{"name": "protocal", "value": "https"}]},
@@ -129,9 +140,6 @@ class CtripAirTicket(DdiyBaseSpider):
             # 起飞时间
             start_time = date_info['ddate']
 
-            if datetime.strptime(start_time, self.time_fmt).hour >= self.before_hour:
-                continue
-
             # 降落时间
             end_time = date_info['adate']
             # 航班号
@@ -150,7 +158,7 @@ class CtripAirTicket(DdiyBaseSpider):
             item = self.process_parsed_item(response=response, parsed_item=item, set_id=False)
             yield item
 
-            if low_price >= min_price:
+            if low_price >= min_price and datetime.strptime(start_time, self.time_fmt).hour < self.before_hour:
                 msg = f'【携程】检测到低价机票\n' \
                       f'航班：{flight_name}\n' \
                       f'起飞时间：{start_time}\n' \
