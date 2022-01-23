@@ -57,8 +57,8 @@ class CtripAirTicket(DdiyBaseSpider):
         now = datetime.now()
         self.trip_li = list()
         for origin, dest, date, low_price in trip_li:
-            date = datetime.strptime(date, time_fmt)
-            if now >= date:
+            search_date = datetime.strptime(date, time_fmt)
+            if now >= search_date:
                 self.logger.info(f'不爬取历史机票：{date}')
                 continue
             self.trip_li.append([origin, dest, date, low_price])
