@@ -136,8 +136,9 @@ class CtripAirTicket(DdiyBaseSpider):
             end_time = date_info['adate']
             # 航班号
             flight_name = flt['mutilstn'][0]['basinfo']['airsname'] + '-' + flt['mutilstn'][0]['basinfo']['flgno']
-            price_li = [i['priceinfo'][0]['price'] for i in flt['policyinfo']]
-            min_price = min(price_li)
+            price_li = [[i['priceinfo'][0]['price'], i['priceinfo'][0]['ticket']] for i in flt['policyinfo']]
+            price_li.sort(key=lambda x: x[0])
+            min_price, ticket = price_li[0]
             _id = f''
             item = {
                 'flight_name': flight_name,
@@ -155,5 +156,6 @@ class CtripAirTicket(DdiyBaseSpider):
                       f'起飞时间：{start_time}\n' \
                       f'降落时间：{end_time}\n' \
                       f'当前票价：{min_price}\n' \
-                      f'预警票价：{low_price}'
+                      f'预警票价：{low_price}\n' \
+                      f'当前余票：{ticket}'
                 self.wx_com_bot.send_msg_text(agent_id=self.agent_id, content=msg, to_user=self.notice_wx_com)
