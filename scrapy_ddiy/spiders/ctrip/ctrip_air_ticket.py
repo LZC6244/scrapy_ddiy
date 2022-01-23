@@ -93,8 +93,8 @@ class CtripAirTicket(DdiyBaseSpider):
             return
 
         js_dir = os.path.join(os.path.dirname(__file__), '../../../scripts/js/ctrip')
-        uuid = subprocess.check_output(['node', os.path.join(js_dir, 'get_uuid.js')],
-                                       shell=True, stderr=subprocess.STDOUT).decode().strip().split('\n')
+        js_path = os.path.join(js_dir, 'get_uuid.js')
+        uuid = subprocess.check_output(['node', js_path], stderr=subprocess.STDOUT).decode().strip().split('\n')
         uuid = uuid[0]
         self.logger.info(f'生成 uuid ：{uuid}')
         create_time = int(datetime.now().timestamp() * 1000) - random.randint(3e5, 4e5)
