@@ -3,8 +3,8 @@ import os
 import sys
 import json
 from time import sleep
-from DingTalkBot.bot import DingTalkBot
-from redis.connection import ConnectionError
+from MsgBot import DingTalkBot
+from redis.exceptions import ConnectionError
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from scrapy_ddiy.utils.common import get_redis_conn
