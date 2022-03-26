@@ -32,16 +32,18 @@ class CtripAirTicket(DdiyBaseSpider):
     notice_wx_com: str
     city_info = dict()
     time_fmt = '%Y-%m-%d %H:%M:%S'
-    # 晚于 xx 点后航班不进行预警
-    before_hour: int = 21
+    # 航班预警时间下限（时：分）
+    time_lower_limit = '08:00'
+    # 航班预警时间上限（时：分）
+    time_upper_limit = '21:30'
 
     def custom_init(self, *args, **kwargs):
         env = os.environ
         self.agent_id = int(env.get('WX_COM_AGENT_ID'))
         self.wx_com_bot = WxComBot(corp_id=env.get('WX_COM_CORP_ID'), corp_secret=env.get('WX_COM_CORP_SECRET'))
 
-        self.before_hour = int(self.before_hour)
-        self.logger.info(f'before_hour is {self.before_hour}')
+        self.logger.info(
+            f'[time_lower_limit is {self.time_lower_limit}]\t[time_upper_limit is {self.time_upper_limit}]')
 
     def start_requests(self):
         trip_li = getattr(self, 'trip_li', None)
@@ -136,6 +138,7 @@ class CtripAirTicket(DdiyBaseSpider):
         """解析航班"""
         low_price = response.meta['low_price']
         data = json.loads(response.text)
+        from_addr, to_addr = data['rltmsg'].split('|')
         for flt in data['fltitem']:
             date_info = flt['mutilstn'][0]['dateinfo']
             # 起飞时间
@@ -150,6 +153,9 @@ class CtripAirTicket(DdiyBaseSpider):
             min_price, ticket = price_li[0]
             _id = f''
             item = {
+                'from_addr': from_addr,
+                'to_addr': to_addr,
+                'start_date': start_time[:10],
                 'flight_name': flight_name,
                 'start_time': start_time,
                 'end_time': end_time,
@@ -159,7 +165,10 @@ class CtripAirTicket(DdiyBaseSpider):
             item = self.process_parsed_item(response=response, parsed_item=item, set_id=False)
             yield item
 
-            if low_price >= min_price and datetime.strptime(start_time, self.time_fmt).hour < self.before_hour:
+            tmp_start_time = datetime.strptime(start_time, self.time_fmt)
+            time_lower_limit = datetime.strptime(f'{start_time[:10]} {self.time_lower_limit}:00', self.time_fmt)
+            time_upper_limit = datetime.strptime(f'{start_time[:10]} {self.time_upper_limit}:00', self.time_fmt)
+            if low_price >= min_price and (time_lower_limit <= tmp_start_time <= time_upper_limit):
                 msg = f'【携程】检测到低价机票\n' \
                       f'航班：{flight_name}\n' \
                       f'起飞时间：{start_time}\n' \
