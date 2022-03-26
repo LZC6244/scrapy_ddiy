@@ -72,6 +72,7 @@ class LogCrawlMiddleware(object):
             if self.stats_to_db_task.running:
                 self.stats_to_db_task.stop()
             self.crawl_stats_to_db(spider, 'finished')
+        spider.mongo_cli.close()
 
     def crawl_stats_to_db(self, spider, status='crawling'):
         """

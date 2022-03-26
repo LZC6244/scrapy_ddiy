@@ -138,7 +138,6 @@ class DdiyBaseSpider(Spider):
                               mimetype=mime_type)
 
     def closed(self, reason):
-        self.mongo_cli.close()
         self.redis_cli.close()
 
 

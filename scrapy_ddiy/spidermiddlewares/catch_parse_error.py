@@ -49,7 +49,7 @@ class CatchParseErrorMiddleware(object):
         parse_error_count = spider.crawler.stats.get_value('parse_error_count')
         exception_info['parse_error_count'] = parse_error_count
         self.exception_info = exception_info
-        if parse_error_count == 1:
+        if parse_error_count == 1 and spider.is_online:
             self.send_msg(spider=spider, cron=False)
 
         if self.close_spider_when_parsed_error:
@@ -67,7 +67,7 @@ class CatchParseErrorMiddleware(object):
         if spider.is_online:
             if self.check_exception_task.running:
                 self.check_exception_task.stop()
-        self.send_msg(spider=spider, cron=False)
+            self.send_msg(spider=spider, cron=False)
 
     def send_msg(self, spider, cron: bool = True):
         now = datetime.now()

@@ -11,8 +11,8 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     # RetryMiddleware 默认优先级：550
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
-    'scrapy_ddiy.downloadermiddlewares.custom_user_agent.CustomUserAgentMiddleware': 501,
-    'scrapy_ddiy.downloadermiddlewares.log_crawl.LogCrawlMiddleware': 510,
+    'scrapy_ddiy.downloadermiddlewares.log_crawl.LogCrawlMiddleware': 501,
+    'scrapy_ddiy.downloadermiddlewares.custom_user_agent.CustomUserAgentMiddleware': 510,
     'scrapy_ddiy.downloadermiddlewares.retry.RetryMiddleware': 550,
     # CheckMiddleware 须大于等于 551
     'scrapy_ddiy.downloadermiddlewares.check.CheckMiddleware': 551,
