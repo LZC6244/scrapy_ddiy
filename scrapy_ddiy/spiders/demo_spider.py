@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 """
 scrapy_ddiy 示例爬虫
@@ -10,7 +10,7 @@ scrapy_ddiy 示例爬虫
 class DemoSpider(DdiyBaseSpider):
     name = 'demo_spider'
     description = 'scrapy_ddiy - 基础示例爬虫'
-    start_urls = ['https://www.baidu.com/']
+    start_urls = ['https://www.baidu.com/'] * 5
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
         'DOWNLOAD_DELAY': 1,

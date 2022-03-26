@@ -2,7 +2,7 @@
 import json
 from scrapy import FormRequest
 from scrapy_ddiy.utils.common import get_str_md5
-from scrapy_ddiy.utils.spiders.ddiy_base import DdiyBaseSpider
+from scrapy_ddiy import DdiyBaseSpider
 
 """
 ALAPI：QPS限制为3 , 每天限制请求100次
