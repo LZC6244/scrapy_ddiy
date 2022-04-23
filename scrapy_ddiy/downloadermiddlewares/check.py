@@ -39,6 +39,7 @@ class CheckMiddleware(object):
         if not check_dict:
             return response
         if 'empty_response' in check_dict:
+            # TODO: 具体怎么检查空响应？
             response.status = self.custom_retry_http_code
             spider.logger.info('[check] retry by "empty_response"')
         elif 'xpath' in check_dict:
