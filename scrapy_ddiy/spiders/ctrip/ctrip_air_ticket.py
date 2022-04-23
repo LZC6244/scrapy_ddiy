@@ -171,6 +171,7 @@ class CtripAirTicket(DdiyBaseSpider):
             if low_price >= min_price and (time_lower_limit <= tmp_start_time <= time_upper_limit):
                 msg = f'【携程】检测到低价机票\n' \
                       f'航班：{flight_name}\n' \
+                      f'行程：{from_addr} => {to_addr}\n' \
                       f'起飞时间：{start_time}\n' \
                       f'降落时间：{end_time}\n' \
                       f'当前票价：{min_price}\n' \
