@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from scrapy import Request
-from scrapy_ddiy.utils.spiders.ddiy_redis import DdiyRedisSpider
+from scrapy_ddiy import DdiyRedisSpider
 
 """
 scrapy_ddiy 示例爬虫
@@ -29,7 +29,7 @@ class RedisDemoSpider(DdiyRedisSpider):
         demo_url = f'https://www.baidu.com/s?wd={data}'
         yield Request(url=demo_url, callback=self.parse, meta={'dont_redirect': True})
 
-        demo_url_2 = f'https://www.baidu.com/s?wd={data}a{data}'
+        demo_url_2 = f'https://www.baidu.com/s?wd={data}test{data}'
         yield Request(url=demo_url_2, callback=self.parse, meta={'dont_redirect': True})
 
     def parse(self, response, **kwargs):
