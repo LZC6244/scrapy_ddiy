@@ -4,25 +4,49 @@
 """
 import six
 import signal
+import pprint
 import logging
-from scrapy import signals
 from twisted.internet import reactor
+from typing import TYPE_CHECKING, Optional
+from scrapy import Spider, signals
+from scrapy.core.engine import ExecutionEngine
 from scrapy.crawler import Crawler, CrawlerRunner
 from scrapy.resolver import CachingThreadedResolver
-from scrapy.utils.log import log_scrapy_info, LogCounterHandler
 from scrapy.utils.ossignal import install_shutdown_handlers, signal_names
 from scrapy.settings import overridden_settings, Settings
 from scrapy.signalmanager import SignalManager
-from scrapy.utils.misc import load_object
+from scrapy.utils.misc import create_instance, load_object
+from scrapy.utils.reactor import (
+    install_reactor,
+    is_asyncio_reactor_installed,
+    verify_installed_asyncio_event_loop,
+    verify_installed_reactor,
+)
+from scrapy.utils.log import (
+    LogCounterHandler,
+    configure_logging,
+    get_scrapy_root_handler,
+    install_scrapy_root_handler,
+    log_reactor_info,
+    log_scrapy_info,
+)
 from scrapy.extension import ExtensionManager
 from scrapy_ddiy.utils.log import custom_configure_logging
 from scrapy_ddiy.utils.log import custom_install_scrapy_root_handler, custom_get_scrapy_root_handler
+
+if TYPE_CHECKING:
+    from scrapy.utils.request import RequestFingerprinter
 
 logger = logging.getLogger(__name__)
 
 
 class CustomCrawler(Crawler):
-    def __init__(self, spidercls, settings=None):
+    """更改处为 custom_xx 函数"""
+
+    def __init__(self, spidercls, settings=None, init_reactor: bool = False):
+        if isinstance(spidercls, Spider):
+            raise ValueError("The spidercls argument must be a class, not an object")
+
         if isinstance(settings, dict) or settings is None:
             settings = Settings(settings)
 
@@ -30,14 +54,19 @@ class CustomCrawler(Crawler):
         self.settings = settings.copy()
         self.spidercls.update_settings(self.settings)
 
-        d = dict(overridden_settings(self.settings))
-        logger.info("Overridden settings: %(settings)r", {'settings': d})
-
         self.signals = SignalManager(self)
-        self.stats = load_object(self.settings['STATS_CLASS'])(self)
 
-        handler = LogCounterHandler(self, level=self.settings.get('LOG_LEVEL'))
+        self.stats = load_object(self.settings["STATS_CLASS"])(self)
+
+        handler = LogCounterHandler(self, level=self.settings.get("LOG_LEVEL"))
         logging.root.addHandler(handler)
+
+        d = dict(overridden_settings(self.settings))
+        logger.info(
+            "Overridden settings:\n%(settings)s", {"settings": pprint.pformat(d)}
+        )
+
+        # if get_scrapy_root_handler() is not None:
         if custom_get_scrapy_root_handler() is not None:
             # scrapy root handler already installed: update it with new settings
             # install_scrapy_root_handler(self.settings)
@@ -47,14 +76,36 @@ class CustomCrawler(Crawler):
         self.__remove_handler = lambda: logging.root.removeHandler(handler)
         self.signals.connect(self.__remove_handler, signals.engine_stopped)
 
-        lf_cls = load_object(self.settings['LOG_FORMATTER'])
+        lf_cls = load_object(self.settings["LOG_FORMATTER"])
         self.logformatter = lf_cls.from_crawler(self)
+
+        self.request_fingerprinter: RequestFingerprinter = create_instance(
+            load_object(self.settings["REQUEST_FINGERPRINTER_CLASS"]),
+            settings=self.settings,
+            crawler=self,
+        )
+
+        reactor_class = self.settings["TWISTED_REACTOR"]
+        event_loop = self.settings["ASYNCIO_EVENT_LOOP"]
+        if init_reactor:
+            # this needs to be done after the spider settings are merged,
+            # but before something imports twisted.internet.reactor
+            if reactor_class:
+                install_reactor(reactor_class, event_loop)
+            else:
+                from twisted.internet import reactor  # noqa: F401
+            log_reactor_info()
+        if reactor_class:
+            verify_installed_reactor(reactor_class)
+            if is_asyncio_reactor_installed() and event_loop:
+                verify_installed_asyncio_event_loop(event_loop)
+
         self.extensions = ExtensionManager.from_crawler(self)
 
         self.settings.freeze()
         self.crawling = False
         self.spider = None
-        self.engine = None
+        self.engine: Optional[ExecutionEngine] = None
 
 
 class CustomCrawlerRunner(CrawlerRunner):
