@@ -61,16 +61,18 @@ class CustomCrawler(Crawler):
         handler = LogCounterHandler(self, level=self.settings.get("LOG_LEVEL"))
         logging.root.addHandler(handler)
 
-        d = dict(overridden_settings(self.settings))
-        logger.info(
-            "Overridden settings:\n%(settings)s", {"settings": pprint.pformat(d)}
-        )
-
         # if get_scrapy_root_handler() is not None:
         if custom_get_scrapy_root_handler() is not None:
             # scrapy root handler already installed: update it with new settings
             # install_scrapy_root_handler(self.settings)
             custom_install_scrapy_root_handler(self.settings, spidercls.name)
+
+        # 添加filehandler到日志文件，必须在custom_get_scrapy_root_handler之后
+        d = dict(overridden_settings(self.settings))
+        logger.info(
+            "Overridden settings:\n%(settings)s", {"settings": pprint.pformat(d)}
+        )
+
         # lambda is assigned to Crawler attribute because this way it is not
         # garbage collected after leaving __init__ scope
         self.__remove_handler = lambda: logging.root.removeHandler(handler)
