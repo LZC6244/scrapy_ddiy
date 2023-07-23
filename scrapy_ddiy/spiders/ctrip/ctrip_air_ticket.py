@@ -22,20 +22,33 @@ class CtripAirTicket(DdiyBaseSpider):
     name = 'ctrip_air_ticket'
     description = '携程机票爬虫'
     custom_settings = {
+        'BULK_INSERT': 20,
+        'RETRY_TIMES': 10,
         'COOKIES_ENABLED': True,
+        'CONCURRENT_REQUESTS': 2,
+        'DOWNLOAD_DELAY': 1,
+        'RANDOMIZE_DOWNLOAD_DELAY': False,
         'ITEM_PIPELINES': {
             'scrapy_ddiy.pipelines.mongodb.MongodbPipeline': 300,
         },
     }
+    if os.environ.get('ENV_FLAG_DDIY') == 'online':
+        custom_settings['DOWNLOADER_MIDDLEWARES'] = {
+            'scrapy_ddiy.downloadermiddlewares.full_proxy.FullProxyDownloadMiddleware': 522,
+        }
     wx_com_bot: WxComBot
     agent_id: int
     notice_wx_com: str
     city_info = dict()
     time_fmt = '%Y-%m-%d %H:%M:%S'
     # 航班预警时间下限（时：分）
+    # time_lower_limit = '08:00'
+    # # 航班预警时间上限（时：分）
+    # time_upper_limit = '21:30'
+    # 航班预警时间下限（时：分）
     time_lower_limit = '08:00'
     # 航班预警时间上限（时：分）
-    time_upper_limit = '21:30'
+    time_upper_limit = '23:59'
 
     def custom_init(self, *args, **kwargs):
         env = os.environ
@@ -83,7 +96,8 @@ class CtripAirTicket(DdiyBaseSpider):
         # A-Z 城市列表
         pl = data.get('pl')
         if not pl:
-            self.crawler.engine.close_spider(self, f'不存在 A-Z 城市列表数据 [pl] ，请检查\n原始响应如下\n{response.text}')
+            self.crawler.engine.close_spider(self,
+                                             f'不存在 A-Z 城市列表数据 [pl] ，请检查\n原始响应如下\n{response.text}')
             return
         for p in pl:
             for c in p['cl']:
@@ -105,6 +119,10 @@ class CtripAirTicket(DdiyBaseSpider):
         if not cid:
             self.crawler.engine.close_spider(self, f'获取 cid 失败，请检查')
             return
+
+        # [自测]腾讯云 linux 系统上大概率得到的cid无效，此处直接随机即可
+        cid = f'{random.randint(1e3, 2e3)}'
+        self.logger.info(f'使用随机生成 cid ：{cid}')
 
         js_dir = os.path.join(os.path.dirname(__file__), '../../../scripts/js/ctrip')
         js_path = os.path.join(js_dir, 'get_uuid.js')
@@ -138,8 +156,17 @@ class CtripAirTicket(DdiyBaseSpider):
         """解析航班"""
         low_price = response.meta['low_price']
         data = json.loads(response.text)
-        from_addr, to_addr = data['rltmsg'].split('|')
+        try:
+            from_addr, to_addr = data['rltmsg'].split('|')
+        except Exception as e:
+            self.crawler.engine.close_spider(self, f'被反爬 ，结束爬虫，请更新_bfa')
+            return
         for flt in data['fltitem']:
+
+            # 忽略中转机票
+            if len(flt['mutilstn']) > 1:
+                continue
+
             date_info = flt['mutilstn'][0]['dateinfo']
             # 起飞时间
             start_time = date_info['ddate']

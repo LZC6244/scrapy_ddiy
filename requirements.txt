@@ -1,6 +1,6 @@
 requests
 w3lib
-Scrapy
+Scrapy>=2.9.0
 pymongo
 itemadapter
 redis
@@ -10,3 +10,7 @@ six
 Twisted
 MsgBot
 pycryptodome
+fonttools
+ddddocr
+qrcode
+python-dateutil

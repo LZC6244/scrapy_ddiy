@@ -42,15 +42,15 @@ class CatchParseErrorMiddleware(object):
 
         headers_info = response.request.headers.to_string().decode()
         request_info = f'<[{response.status}-{response.request.method}] {response.request.url}  ' \
-                       f'{response.request.body}>\n\nRequest Headers ↓↓↓\n{headers_info}'
+                       f'{response.request.body}n>\n\nRequest Headers ↓↓↓\n{headers_info}'
         exception_info.pop('response')
         exception_info.pop('request')
         exception_info['request_info'] = request_info
         parse_error_count = spider.crawler.stats.get_value('parse_error_count')
         exception_info['parse_error_count'] = parse_error_count
         self.exception_info = exception_info
-        if parse_error_count == 1 and spider.is_online:
-            self.send_msg(spider=spider, cron=False)
+        # if parse_error_count == 1 and spider.is_online:
+        #     self.send_msg(spider=spider, cron=False)
 
         if self.close_spider_when_parsed_error:
             spider.crawler.engine.close_spider(spider, 'close_spider_when_parsed_error')
@@ -59,15 +59,15 @@ class CatchParseErrorMiddleware(object):
         self.start_time = spider.crawler.stats.get_value('start_time').strftime(self.time_fmt)
 
         self.close_spider_when_parsed_error = spider.settings.getbool('CLOSE_SPIDER_WHEN_PARSED_ERROR')
-        if spider.is_online:
-            self.check_exception_task = task.LoopingCall(self.send_msg, spider=spider)
-            self.check_exception_task.start(interval=1800)
+        # if spider.is_online:
+        #     self.check_exception_task = task.LoopingCall(self.send_msg, spider=spider)
+        #     self.check_exception_task.start(interval=1800)
 
     def close_spider(self, spider):
         if spider.is_online:
             if self.check_exception_task.running:
                 self.check_exception_task.stop()
-            self.send_msg(spider=spider, cron=False)
+            # self.send_msg(spider=spider, cron=False)
 
     def send_msg(self, spider, cron: bool = True):
         now = datetime.now()
@@ -76,5 +76,5 @@ class CatchParseErrorMiddleware(object):
         if cron and (now.hour < 8 or now.hour >= 21):
             return
         mail_subject = f'Spider-Warning: [parse_error] {spider.name}'
-        spider.send_mail(mail_subject=mail_subject, warn_msg=self.exception_info)
+        # spider.send_mail(mail_subject=mail_subject, warn_msg=self.exception_info)
         self.exception_info = dict()

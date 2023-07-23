@@ -53,11 +53,12 @@ class MongodbPipeline(object):
     def close_spider(self, spider):
         if self.data_li:
             self.insert_data(spider, self.data_li)
-        self.mongo_cli.close()
+        #     在logcrawl中关闭数据库连接即可
+        # self.mongo_cli.close()
         if spider.is_online:
             if self.check_exception_task.running:
                 self.check_exception_task.stop()
-        self.send_msg(spider=spider, cron=False)
+        # self.send_msg(spider=spider, cron=False)
 
     def insert_data(self, spider, data_li: list):
         try:
@@ -83,8 +84,8 @@ class MongodbPipeline(object):
                                       'warn_reason': 'save_item_error', 'save_item_error_count': save_item_error_count,
                                       'warn_time': warn_time}
                     self.exception_info = exception_info
-                    if save_item_error_count == 1:
-                        self.send_msg(spider=spider, cron=False)
+                    # if save_item_error_count == 1:
+                    #     self.send_msg(spider=spider, cron=False)
 
         spider.logger.info(f'Bulk insert {len(data_li)} items successfully')
         self.data_li.clear()
@@ -103,5 +104,5 @@ class MongodbPipeline(object):
         if cron and (now.hour < 8 or now.hour >= 21):
             return
         mail_subject = f'Spider-Warning: [save_item_error] {spider.name}'
-        spider.send_mail(mail_subject=mail_subject, warn_msg=self.exception_info)
+        # spider.send_mail(mail_subject=mail_subject, warn_msg=self.exception_info)
         self.exception_info = dict()
