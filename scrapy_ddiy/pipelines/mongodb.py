@@ -43,6 +43,7 @@ class MongodbPipeline(object):
             spider.logger.info(f'Non-online environment! Set the mongodb database table name to "{self.mongo_db}"')
 
         mongo_coll = getattr(spider, 'table_name_ddiy', None) or spider.name
+        spider.logger.info(f'[{self.__class__.__name__}] use database => {self.mongo_db}.{mongo_coll}')
         self.mongo_coll = self.mongo_cli[self.mongo_db][mongo_coll]
         # 为 MongoDB 集合创建索引
         # 目前仅支持单字段索引，若要创建复合索引或进行其他复杂操作，请自行在 spider.custom_init 方法中执行

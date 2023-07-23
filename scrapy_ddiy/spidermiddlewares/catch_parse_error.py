@@ -4,7 +4,6 @@ import traceback
 from scrapy import signals
 from datetime import datetime
 from twisted.internet import task
-from scrapy.utils.reqser import request_to_dict
 
 """
 捕获爬虫解析异常中间件
@@ -31,7 +30,7 @@ class CatchParseErrorMiddleware(object):
 
         warn_time = datetime.now()
         callback_name = getattr(response.request.callback, '__name__', 'parse')
-        request = pickle.dumps(request_to_dict(response.request, spider))
+        request = pickle.dumps(response.request.to_dict(spider=spider))
         exec_info = traceback.format_exc()
 
         exception_info = {'spider_name': spider.name, 'start_time': self.start_time, 'server_ip': spider.local_ip,
